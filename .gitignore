@@ -1,0 +1,32 @@
+# --- Nix/NixOS Specific ---
+# Build results (symlinks to the Nix store)
+/result*
+
+# Direnv integration (for nix-shell/nix-develop)
+/.direnv/
+.envrc
+
+# --- IDE / Editor Configuration ---
+# Visual Studio Code
+.vscode/
+
+# JetBrains (IntelliJ, PyCharm, etc.)
+.idea/
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+
+# --- Operating System Files ---
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# --- Secrets and Logs ---
+# Ignore any local secrets or keys that might be used for testing
+*.key
+*.priv
