@@ -64,7 +64,7 @@ stdenv.mkDerivation rec {
     install -d $out/bin
     makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname --prefix PATH : "${lib.makeBinPath [ coreutils bc openjdk24 ]}" \
       --run "mkdir -p \$HOME/.$pname/.motivewave" \
-      ${lib.optionalString (licenseFile != null) ''--run "cat '${licenseFile}' > \$HOME/.$pname/.motivewave/mwave_license.txt"''}
+      ${lib.optionalString (licenseFile != null) ''--run 'sh -c "cat ${licenseFile} > $HOME/.${pname}/.motivewave/mwave_license.txt"' ''}
   '';
 
 
