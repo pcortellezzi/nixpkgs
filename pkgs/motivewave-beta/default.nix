@@ -45,15 +45,20 @@ stdenv.mkDerivation rec {
     dpkg-deb -X $src $out
 
     mv $out/usr/share/motivewave $out/usr/share/$pname
-    mv $out/usr/share/applications/motivewave.desktop $out/usr/share/applications/$pname.desktop
+    mkdir -p $out/share/applications
+    mv $out/usr/share/applications/motivewave.desktop $out/share/applications/$pname.desktop
     sed -i -e 's/^\(Name=.*\)$/\1 Beta/' \
-           -e "s#/motivewave#/$pname#" "$out/usr/share/applications/$pname.desktop"
-    sed -i -e "s#^\\(SCRIPTDIR=\\).*#\\1$out/usr/share/$pname#" \
-           -e "s#\\.motivewave#.$pname/.motivewave#" \
-           -e "s#\\(-DUserHome=\$HOME\\)#\\1/.$pname#" \
+           -e "s#^Exec=.*#Exec=$out/bin/$pname#" \
+           -e "s#^Icon=.*#Icon=$pname#" "$out/share/applications/$pname.desktop"
+    sed -i -e "s#^\(SCRIPTDIR=\).*#\1$out/usr/share/$pname#" \
+           -e "s#\.motivewave#.$pname/.motivewave#" \
+           -e "s#\(-DUserHome=\$HOME\)#\1/.$pname#" \
 	   -e "/-DUserHome/ a COMMAND+=(\"-Duser.home=\$HOME/.$pname\")" \
-           -e "s#\\(-Duser.dir=\$HOME\\)#\\1/.$pname#" "$out/usr/share/$pname/run.sh"
+           -e "s#\(-Duser.dir=\$HOME\)#\1/.$pname#" "$out/usr/share/$pname/run.sh"
     install -Dm644 -t "$out/usr/share/licenses/$pname" "$out/usr/share/$pname/license.html"
+
+    install -Dm644 "$out/usr/share/$pname/icons/mwave_256x256.png" \
+                   "$out/share/icons/hicolor/256x256/apps/$pname.png"
 
     find $out -type d -exec chmod 755 {} +
     find $out -type f -exec chmod 644 {} +
