@@ -8,18 +8,21 @@
   outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
+
+      myOverlay = import ./overlay.nix;
+
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ self.overlays.default ];
-      };
-    in
-    {
-      overlays.default = final: prev: {
-        motivewave-beta = prev.callPackage ./pkgs/motivewave-beta {};
+        overlays = [ myOverlay ];
+        config.allowUnfree = true;
       };
 
-      packages.${system} = {
-        inherit (pkgs) motivewave-beta;
-      };
+      myPackageNames = builtins.attrNames (myOverlay pkgs pkgs);
+
+    in
+    {
+      overlays.default = myOverlay;
+
+      packages.${system} = pkgs.lib.getAttrs myPackageNames pkgs;
     };
 }
