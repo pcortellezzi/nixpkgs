@@ -23,6 +23,15 @@
     {
       overlays.default = myOverlay;
 
-      packages.${system} = pkgs.lib.getAttrs myPackageNames pkgs;
+      packages.${system} = pkgs.lib.getAttrs myPackageNames pkgs // {
+        default = pkgs.runCommand "all-my-packages" {
+          buildInputs = builtins.attrValues (pkgs.lib.getAttrs myPackageNames pkgs);
+        } ''
+          mkdir -p $out
+          for i in $buildInputs; do
+            cp -r $i/* $out/ || true
+          done
+        '';
+      };
     };
 }

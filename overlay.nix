@@ -11,6 +11,17 @@ let
         prev.callPackage (./pkgs + "/${name}") { }
     )
     onlyDirs;
+
+  # Import all overlays from the overlays/ directory
+  customOverlays = prev.lib.attrValues (
+    prev.lib.mapAttrs (
+      name: type:
+        if type == "regular" && prev.lib.hasSuffix ".nix" name
+        then import (./overlays + "/${name}")
+        else null
+    ) (builtins.readDir ./overlays)
+  );
+
 in
 
-packages
+  prev.lib.foldl (acc: overlay: acc // (overlay final prev)) packages customOverlays
