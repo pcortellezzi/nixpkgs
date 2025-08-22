@@ -1,0 +1,51 @@
+# .github/workflows/trigger-nixos-update.yml
+name: "Trigger NixOS Config Update"
+
+on:
+  workflow_run:
+    workflows: ["Nix Cache Build"]
+    types:
+      - completed
+
+jobs:
+  update-nixos-config:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: "Set up SSH"
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.NIXOS_CONFIG_UPDATER_PRIVATE_KEY }}
+
+      - name: "Configure Git"
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@github.com"
+
+      - name: "Clone NixOS Config repository"
+        run: |
+          git clone git@github.com:pcortellezzi/nixos-config.git
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: "Update flake inputs"
+        run: |
+          cd nixos-config
+          nix flake lock --update-input my-nixpkgs
+
+      - name: "Commit and push changes"
+        run: |
+          cd nixos-config
+          # Ne commiter et pusher que si flake.lock a changé
+          if ! git diff --quiet --exit-code flake.lock; then
+            echo "flake.lock has changed, committing and pushing."
+            git add flake.lock
+            git commit -m "chore: Update flake inputs"
+            git push
+          else
+            echo "No changes to flake.lock, skipping commit."
+          fi
