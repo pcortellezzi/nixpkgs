@@ -3,12 +3,12 @@
 
 stdenv.mkDerivation rec {
   pname = "motivewave-beta";
-  version = "7.0.0B11";
-  _build_id = "611";
+  version = "7.0.0B13";
+  _build_id = "613";
 
   src = fetchurl {
     url = "https://downloads.motivewave.com/builds/${_build_id}/motivewave_${version}_amd64.deb";
-    sha256 = "ed3170e3256fcccb310884d5f3874a88c6d4f5cd73a360dfbc724a14de9c0499";
+    sha256 = "9122ccd4a8e4442b76c0e45ea830f54472ab5dbecbcab27f3a553ced8524e031";
   };
 
   nativeBuildInputs = [ autoPatchelfHook dpkg makeWrapper ];
