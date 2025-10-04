@@ -10,6 +10,7 @@ final: prev: {
       postPatch = ''
         sed -i '/\/etc\/os-release/d' module/Makefile
       '';
+      kernel = final.linuxPackages.kernel;
     });
   };
 }
