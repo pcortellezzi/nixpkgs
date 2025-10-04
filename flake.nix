@@ -14,9 +14,27 @@
         overlays = [ myOverlay ];
         config.allowUnfree = true;
       };
+      myPackages = (import ./overlay.nix) pkgs pkgs;
+
+      # List of packages to include in the default build
+      defaultPackages = [
+        pkgs.displaylink
+        pkgs.motivewave
+        pkgs.motivewave-beta
+        pkgs.linuxPackages.evdi
+      ];
     in
     {
       overlays.default = myOverlay;
-      packages.${system} = (import ./overlay.nix) pkgs pkgs;
+      packages.${system} = myPackages // {
+        default = pkgs.runCommand "all-my-packages" {
+          buildInputs = defaultPackages;
+        } ''
+          mkdir -p $out
+          for i in $buildInputs; do
+            cp -r $i/* $out/ || true
+          done
+        '';
+      };
     };
 }
