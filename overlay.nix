@@ -24,4 +24,4 @@ let
 
 in
 
-  prev.lib.foldl (acc: overlay: acc // (overlay final prev)) packages customOverlays
+  prev.lib.foldl (acc: overlay: prev.lib.recursiveUpdate acc (overlay final prev)) packages customOverlays
