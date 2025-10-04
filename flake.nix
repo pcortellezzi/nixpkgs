@@ -21,7 +21,7 @@
         pkgs.displaylink
         pkgs.motivewave
         pkgs.motivewave-beta
-        pkgs.linuxPackages.evdi
+        pkgs.linuxPackages_latest.evdi
       ];
     in
     {

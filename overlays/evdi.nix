@@ -1,6 +1,6 @@
 final: prev: {
-  linuxPackages = prev.lib.recursiveUpdate prev.linuxPackages {
-    evdi = prev.linuxPackages.evdi.overrideAttrs (oldAttrs: {
+  linuxPackages_latest = prev.lib.recursiveUpdate prev.linuxPackages_latest {
+    evdi = prev.linuxPackages_latest.evdi.overrideAttrs (oldAttrs: {
       version = "1.14.11";
       src = oldAttrs.src.override {
         tag = "v1.14.11";
@@ -10,7 +10,7 @@ final: prev: {
       postPatch = ''
         sed -i '/\/etc\/os-release/d' module/Makefile
       '';
-      kernel = final.linuxPackages.kernel;
+      kernel = final.linuxPackages_latest.kernel;
     });
   };
 }
