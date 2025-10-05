@@ -1,0 +1,74 @@
+
+name: Update motivewave package
+
+on:
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+  schedule:
+    - cron: '0 10 * * *' # Runs every day at 10:00 AM
+
+jobs:
+  update-motivewave:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Update motivewave package
+        run: |
+          set -euo pipefail
+          echo "Fetching latest package information..."
+          
+          NEW_URL=$(curl -Ls -o /dev/null -w %{url_effective} "https://www.motivewave.com/update/download.do?file_type=LINUX")
+          
+          if [ -z "$NEW_URL" ]; then
+            echo "Could not get the new URL."
+            exit 1
+          fi
+
+          NEW_VERSION=$(echo "$NEW_URL" | sed -n 's/.*motivewave_\(.*\]_amd64\.deb/\1/p')
+          NEW_BUILD_ID=$(echo "$NEW_URL" | sed -n 's/.*\/builds\/\[.*\]\/motivewave.*/\1/p')
+
+          if [ -z "$NEW_VERSION" ] || [ -z "$NEW_BUILD_ID" ]; then
+            echo "Could not parse version or build ID from URL: $NEW_URL"
+            exit 1
+          fi
+
+          CURRENT_VERSION=$(grep 'version = "' pkgs/motivewave/default.nix | sed -E 's/.*version = \"([^\"]+)\".*/\1/')
+          echo "Current version: $CURRENT_VERSION, Latest version: $NEW_VERSION"
+
+          if [ "$CURRENT_VERSION" == "$NEW_VERSION" ]; then
+            echo "motivewave is already up to date."
+            exit 0
+          fi
+
+          echo "New version found. Updating package..."
+          
+          NEW_HASH=$(nix-prefetch-url "$NEW_URL")
+          NEW_HASH_SRI=$(nix hash convert --type sha256 --to sri "$NEW_HASH")
+
+          sed -i "s|version = ".*"|version = \"$NEW_VERSION\";|" pkgs/motivewave/default.nix
+          sed -i "s|_build_id = ".*"|_build_id = \"$NEW_BUILD_ID\";|" pkgs/motivewave/default.nix
+          sed -i "s|sha256 = ".*"|sha256 = \"$NEW_HASH\";|" pkgs/motivewave/default.nix
+
+          echo "Successfully updated motivewave to $NEW_VERSION"
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          # Check if there are any changes
+          if ! git diff --quiet; then
+            git add pkgs/motivewave/default.nix
+            git commit -m "motivewave: Auto-update to $NEW_VERSION"
+            git push
+          else
+            echo "No new version found for motivewave."
+          fi
