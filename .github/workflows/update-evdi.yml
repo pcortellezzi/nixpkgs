@@ -43,7 +43,7 @@ jobs:
           
           TARBALL_URL="https://github.com/DisplayLink/evdi/archive/refs/tags/${LATEST_TAG}.tar.gz"
           NEW_HASH_PLAIN=$(nix-prefetch-url --unpack "$TARBALL_URL")
-          NEW_HASH_SRI=$(nix hash to-sri --type sha256 "$NEW_HASH_PLAIN")
+          NEW_HASH_SRI=$(nix hash convert --type sha256 --to sri "$NEW_HASH_PLAIN")
           
           # Use | as a separator for sed because the hash contains /
           sed -i "s|version = \".*\"|version = \"'"$NEW_VERSION"'\"|" overlays/evdi.nix

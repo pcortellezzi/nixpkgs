@@ -63,7 +63,7 @@ jobs:
           echo "New version found. Updating package..."
           
           NEW_HASH=$(nix-prefetch-url "$NEW_URL")
-          NEW_HASH_SRI=$(nix hash to-sri --type sha256 "$NEW_HASH")
+          NEW_HASH_SRI=$(nix hash convert --type sha256 --to sri "$NEW_HASH")
 
           # Use | as a separator for sed because the hash can contain /
           sed -i "s|version = ".*"|version = \"$NEW_VERSION\";|" overlays/displaylink.nix
