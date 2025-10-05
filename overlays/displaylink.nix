@@ -10,7 +10,7 @@ final: prev: {
       hash = "sha256-AWnFc6h4bD9PA3PvE3oPRMoWuBb6kEFE8q7SEgBvPMU=";
     };
 
-    nativeBuildInputs = [ final.autoPatchelfHook final.dpkg ];
+    nativeBuildInputs = [ final.autoPatchelfHook final.dpkg final.makeWrapper ];
 
     buildInputs = [ final.libuuid final.libusb1 final.stdenv.cc.cc.lib ];
 
@@ -36,9 +36,17 @@ final: prev: {
       sed "s|/opt/displaylink/DisplayLinkManager|$out/bin/DisplayLinkManager|" \
         lib/systemd/system/displaylink-driver.service > $out/lib/systemd/system/displaylink-driver.service
 
-      # Copier les règles udev
+      # Install the official Nixpkgs 99-displaylink.rules
       mkdir -p $out/lib/udev/rules.d
-      cp -r lib/udev/rules.d/* $out/lib/udev/rules.d/
+      echo 'ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="17e9", ATTR{bInterfaceClass}=="ff", ATTR{bInterfaceProtocol}=="03", TAG+="systemd", ENV{SYSTEMD_WANTS}="dlm.service"' > $out/lib/udev/rules.d/99-displaylink.rules
+
+      # Apply patchelf and wrapProgram for DisplayLinkManager
+      patchelf \
+        --set-interpreter $(cat ${final.stdenv.cc}/nix-support/dynamic-linker) \
+        --set-rpath ${final.lib.makeLibraryPath buildInputs} \
+        $out/bin/DisplayLinkManager
+      wrapProgram $out/bin/DisplayLinkManager \
+        --chdir "$out/lib/displaylink"
 
       runHook postInstall
     '';
