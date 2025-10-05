@@ -3,11 +3,11 @@ final: prev: {
     pname = "displaylink";
     # Les valeurs ci-dessous sont des placeholders.
     # Le workflow d'automatisation les remplacera par les bonnes valeurs.
-    version = "0.0.0";
+    version = "6.2.0-30";
 
     src = final.fetchurl {
-      url = "https://example.com/placeholder.deb";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      url = "https://www.synaptics.com/sites/default/files/Ubuntu/pool/stable/non-free/amd64/displaylink-driver-6.2.0-30_amd64.deb";
+      hash = "sha256-AWnFc6h4bD9PA3PvE3oPRMoWuBb6kEFE8q7SEgBvPMU=";
     };
 
     nativeBuildInputs = [ final.autoPatchelfHook final.dpkg ];
