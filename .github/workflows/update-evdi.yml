@@ -1,0 +1,66 @@
+name: Update evdi package
+
+on:
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
+  schedule:
+    - cron: '0 8 * * *' # Runs every day at 8:00 AM
+
+jobs:
+  update-evdi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # We need a token with write access to push the changes
+          token: ${{ secrets.PAT }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Install nix-update
+        run: nix-env -f '<nixpkgs>' -iA nix-update
+
+      - name: Update evdi package
+        run: |
+          set -euo pipefail
+          echo "Checking for new evdi version..."
+          LATEST_TAG=$(curl -s "https://api.github.com/repos/DisplayLink/evdi/releases/latest" | jq -r .tag_name)
+          NEW_VERSION=${LATEST_TAG#v}
+          
+          CURRENT_VERSION=$(grep 'version = "' overlays/evdi.nix | sed -E 's/.*version = "([^"]+)".*/\1/')
+          
+          echo "Current version: $CURRENT_VERSION, Latest version: $NEW_VERSION"
+          
+          if [ "$CURRENT_VERSION" == "$NEW_VERSION" ]; then
+            echo "evdi is already up to date."
+            exit 0
+          fi
+          
+          echo "New version found. Updating package..."
+          
+          TARBALL_URL="https://github.com/DisplayLink/evdi/archive/refs/tags/${LATEST_TAG}.tar.gz"
+          NEW_HASH_PLAIN=$(nix-prefetch-url --unpack "$TARBALL_URL")
+          NEW_HASH_SRI=$(nix hash to-sri --type sha256 "$NEW_HASH_PLAIN")
+          
+          # Use | as a separator for sed because the hash contains /
+          sed -i "s|version = \".*\"|version = \"'"$NEW_VERSION"'\"|" overlays/evdi.nix
+          sed -i "s|rev = \".*\"|rev = \"'"$LATEST_TAG"'\"|" overlays/evdi.nix
+          sed -i "s|hash = \".*\"|hash = \"'"$NEW_HASH_SRI"'\"|" overlays/evdi.nix
+          
+          echo "Successfully updated evdi to $NEW_VERSION"
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          # Check if there are any changes
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "evdi: Auto-update to latest version"
+            git push
+          else
+            echo "No new version found for evdi."
+          fi
