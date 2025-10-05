@@ -22,17 +22,24 @@ final: prev: {
 
     installPhase = ''
       runHook preInstall
-      # La structure interne du .deb peut varier, ceci est une estimation
-      # Copier le contenu principal
+
+      # Copier les fichiers de la librairie
       mkdir -p $out/lib/displaylink
-      # Le dossier opt/displaylink n'existe peut-être pas, ignorer l'erreur si c'est le cas
-      cp -r opt/displaylink/* $out/lib/displaylink/ 2>/dev/null || true
+      cp -r opt/displaylink/* $out/lib/displaylink/
 
-      # Copier le service systemd
+      # Créer un lien symbolique pour l'exécutable principal
+      mkdir -p $out/bin
+      ln -s $out/lib/displaylink/DisplayLinkManager $out/bin/DisplayLinkManager
+
+      # Copier et corriger le fichier de service systemd
       mkdir -p $out/lib/systemd/system
-      cp -r lib/systemd/system/* $out/lib/systemd/system/
+      sed "s|/opt/displaylink/DisplayLinkManager|$out/bin/DisplayLinkManager|" \
+        lib/systemd/system/displaylink-driver.service > $out/lib/systemd/system/displaylink-driver.service
 
-      # autoPatchelfHook s'occupe de corriger les binaires
+      # Copier les règles udev
+      mkdir -p $out/lib/udev/rules.d
+      cp -r lib/udev/rules.d/* $out/lib/udev/rules.d/
+
       runHook postInstall
     '';
 
