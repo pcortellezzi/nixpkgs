@@ -33,15 +33,15 @@ jobs:
             exit 1
           fi
 
-          NEW_VERSION=$(echo "$NEW_URL" | sed -n 's/.*motivewave_\(.*\]_amd64\.deb/\1/p')
-          NEW_BUILD_ID=$(echo "$NEW_URL" | sed -n 's/.*\/builds\/\[.*\]\/motivewave.*/\1/p')
+          NEW_VERSION=$(echo "$NEW_URL" | sed -n 's/.*motivewave_\(.*\)_amd64\.deb/\1/p')
+          NEW_BUILD_ID=$(echo "$NEW_URL" | sed -n 's/.*\/builds\/\(.*\)\/motivewave.*/\1/p')
 
           if [ -z "$NEW_VERSION" ] || [ -z "$NEW_BUILD_ID" ]; then
             echo "Could not parse version or build ID from URL: $NEW_URL"
             exit 1
           fi
 
-          CURRENT_VERSION=$(grep 'version = "' pkgs/motivewave/default.nix | sed -E 's/.*version = \"([^\"]+)\".*/\1/')
+          CURRENT_VERSION=$(grep 'version = "' pkgs/motivewave/default.nix | sed -E 's/.*version = "([^"]+)".*/\1/')
           echo "Current version: $CURRENT_VERSION, Latest version: $NEW_VERSION"
 
           if [ "$CURRENT_VERSION" == "$NEW_VERSION" ]; then
@@ -54,9 +54,9 @@ jobs:
           NEW_HASH=$(nix-prefetch-url "$NEW_URL")
           NEW_HASH_SRI=$(nix hash convert --type sha256 --to sri "$NEW_HASH")
 
-          sed -i "s|version = ".*"|version = \"$NEW_VERSION\";|" pkgs/motivewave/default.nix
-          sed -i "s|_build_id = ".*"|_build_id = \"$NEW_BUILD_ID\";|" pkgs/motivewave/default.nix
-          sed -i "s|sha256 = ".*"|sha256 = \"$NEW_HASH\";|" pkgs/motivewave/default.nix
+          sed -i "s|version = \".*\"|version = \"$NEW_VERSION\";|" pkgs/motivewave/default.nix
+          sed -i "s|_build_id = \".*\"|_build_id = \"$NEW_BUILD_ID\";|" pkgs/motivewave/default.nix
+          sed -i "s|sha256 = \".*\"|sha256 = \"$NEW_HASH\";|" pkgs/motivewave/default.nix
 
           echo "Successfully updated motivewave to $NEW_VERSION"
 
