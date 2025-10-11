@@ -1,8 +1,6 @@
 final: prev: {
   displaylink = final.stdenv.mkDerivation rec {
     pname = "displaylink";
-    # Les valeurs ci-dessous sont des placeholders.
-    # Le workflow d'automatisation les remplacera par les bonnes valeurs.
     version = "6.2.0-30";
 
     src = final.fetchurl {
@@ -10,9 +8,21 @@ final: prev: {
       hash = "sha256-AWnFc6h4bD9PA3PvE3oPRMoWuBb6kEFE8q7SEgBvPMU=";
     };
 
-    nativeBuildInputs = [ final.autoPatchelfHook final.dpkg final.makeWrapper ];
+    nativeBuildInputs = [ final.dpkg final.makeWrapper ];
 
-    buildInputs = [ final.libuuid final.libusb1 final.stdenv.cc.cc.lib ];
+    buildInputs = [
+      final.libuuid
+      final.libusb1
+      final.stdenv.cc.cc.lib
+      final.linuxPackages.evdi
+    ];
+
+    libPath = final.lib.makeLibraryPath [
+      final.stdenv.cc.cc.lib
+      final.libuuid
+      final.libusb1
+      final.linuxPackages.evdi
+    ];
 
     unpackPhase = ''
       runHook preUnpack
@@ -38,12 +48,12 @@ final: prev: {
 
       # Install the official Nixpkgs 99-displaylink.rules
       mkdir -p $out/lib/udev/rules.d
-      echo 'ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="17e9", ATTR{bInterfaceClass}=="ff", ATTR{bInterfaceProtocol}=="03", TAG+="systemd", ENV{SYSTEMD_WANTS}="dlm.service"' > $out/lib/udev/rules.d/99-displaylink.rules
+      echo 'ACTION=="add",SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="17e9", ATTR{bInterfaceClass}=="ff", ATTR{bInterfaceProtocol}=="03", TAG+= "systemd", ENV{SYSTEMD_WANTS}="dlm.service"' > $out/lib/udev/rules.d/99-displaylink.rules
 
       # Apply patchelf and wrapProgram for DisplayLinkManager
       patchelf \
         --set-interpreter $(cat ${final.stdenv.cc}/nix-support/dynamic-linker) \
-        --set-rpath ${final.lib.makeLibraryPath buildInputs} \
+        --set-rpath ${libPath} \
         $out/bin/DisplayLinkManager
       wrapProgram $out/bin/DisplayLinkManager \
         --chdir "$out/lib/displaylink"
@@ -51,16 +61,16 @@ final: prev: {
       runHook postInstall
     '';
 
-    # Lier la dépendance evdi
-    evdi = final.linuxPackages.evdi;
+    dontPatchELF = true;
 
-    meta = with final.lib; {
-      description = "Userspace driver for DisplayLink USB graphics adapters";
-      homepage = "https://www.synaptics.com/products/displaylink-graphics";
-      sourceProvenance = [ sourceTypes.binaryNativeCode ];
-      license = licenses.unfree;
-      maintainers = with maintainers; [ amol ]; # Pris de la dérivation nixpkgs originale
-      platforms = [ "x86_64-linux" ];
-    };
+    meta = with final.lib;
+      {
+        description = "Userspace driver for DisplayLink USB graphics adapters";
+        homepage = "https://www.synaptics.com/products/displaylink-graphics";
+        sourceProvenance = [ sourceTypes.binaryNativeCode ];
+        license = licenses.unfree;
+        maintainers = with maintainers; [ amol ]; # Pris de la dérivation nixpkgs originale
+        platforms = [ "x86_64-linux" ];
+      };
   };
 }

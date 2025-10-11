@@ -8,33 +8,28 @@
   outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
-      myOverlay = import ./overlay.nix;
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ myOverlay ];
+        overlays = [ (import ./overlay.nix) ];
         config.allowUnfree = true;
       };
-      myPackages = (import ./overlay.nix) pkgs pkgs;
-
-      # List of packages to include in the default build
-      defaultPackages = [
-        pkgs.displaylink
-        pkgs.motivewave
-        pkgs.motivewave-beta
-        pkgs.linuxPackages_latest.evdi
-      ];
     in
     {
-      overlays.default = myOverlay;
-      packages.${system} = myPackages // {
-        default = pkgs.runCommand "all-my-packages" {
-          buildInputs = defaultPackages;
-        } ''
-          mkdir -p $out
-          for i in $buildInputs; do
-            cp -r $i/* $out/ || true
-          done
-        '';
+      overlays.default = import ./overlay.nix;
+      packages.${system} = {
+        displaylink = pkgs.displaylink;
+        motivewave = pkgs.motivewave;
+        motivewave-beta = pkgs.motivewave-beta;
+        evdi = pkgs.linuxPackages_latest.evdi;
+        default = pkgs.buildEnv {
+          name = "all-my-packages";
+          paths = [
+            pkgs.displaylink
+            pkgs.motivewave
+            pkgs.motivewave-beta
+            pkgs.linuxPackages_latest.evdi
+          ];
+        };
       };
     };
 }
