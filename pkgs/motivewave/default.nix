@@ -1,4 +1,4 @@
-{ stdenv, lib, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg, gtk2, gtk3, openjdk24, xorg, licenseFile ? null }:
+{ stdenv, lib, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg, gtk2, gtk3, xorg, licenseFile ? null }:
 
 
 stdenv.mkDerivation rec {
@@ -35,10 +35,10 @@ stdenv.mkDerivation rec {
     ffmpeg
     gtk2
     gtk3
-    openjdk24
     xorg.xrandr
     xorg.libXxf86vm
     xorg.libXtst
+    xorg.libX11
   ];
 
   installPhase = ''
@@ -48,7 +48,8 @@ stdenv.mkDerivation rec {
     mv $out/usr/share/applications/motivewave.desktop $out/share/applications/$pname.desktop
     sed -i -e "s#^Exec=.*#Exec=$out/bin/$pname#" \
            -e "s#^Icon=.*#Icon=$pname#" "$out/share/applications/$pname.desktop"
-    sed -i -e "s#^\(SCRIPTDIR=\).*#\1$out/usr/share/$pname#"  "$out/usr/share/$pname/run.sh"
+    sed -i -e "s#^\(SCRIPTDIR=\).*#\1$out/usr/share/$pname#" \
+           -e "s|-Djava.library.path=$SCRIPTDIR/lib|-Djava.library.path=$SCRIPTDIR/lib:$SCRIPTDIR/javafx|" "$out/usr/share/$pname/run.sh"
     install -Dm644 -t "$out/usr/share/licenses/$pname" "$out/usr/share/$pname/license.html"
 
     install -Dm644 "$out/usr/share/$pname/icons/mwave_256x256.png" \
@@ -58,10 +59,13 @@ stdenv.mkDerivation rec {
     find $out -type f -exec chmod 644 {} +
 
     chmod +x $out/usr/share/$pname/run.sh
-    #chmod +x $out/usr/share/$pname/jre/bin/*
+    chmod +x $out/usr/share/$pname/jre/bin/*
+
+    find $out/usr/share/$pname/javafx -type f -name "*.so" -exec patchelf --set-rpath "${lib.makeLibraryPath buildInputs}" {} + || true
+    patchelf --set-interpreter "$(cat ${stdenv.cc}/nix-support/dynamic-linker)" $out/usr/share/$pname/jre/bin/motivewave || true
 
     install -d $out/bin
-    makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname --prefix PATH : "${lib.makeBinPath [ coreutils bc openjdk24 ]}" \
+    makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname --prefix PATH : "${lib.makeBinPath [ coreutils bc ]}" \
       --run "mkdir -p \$HOME/.$pname" \
       ${lib.optionalString (licenseFile != null) ''--run 'sh -c "cat ${licenseFile} > $HOME/.${pname}/mwave_license.txt"' ''}
   '';
