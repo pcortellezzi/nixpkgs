@@ -3,19 +3,27 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, nixpkgs-unstable }:
     let
       system = "x86_64-linux";
-      pkgs = import nixpkgs {
+
+      pkgsUnstable = import nixpkgs-unstable {
         inherit system;
-        overlays = [ (import ./overlay.nix) ];
         config.allowUnfree = true;
       };
+
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ (import ./overlay.nix { inherit pkgsUnstable; }) ];
+        config.allowUnfree = true;
+      };
+
     in
     {
-      overlays.default = import ./overlay.nix;
+      overlays.default = import ./overlay.nix { inherit pkgsUnstable; };
       packages.${system} = {
         displaylink = pkgs.displaylink;
         motivewave = pkgs.motivewave;

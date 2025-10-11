@@ -1,6 +1,12 @@
+{ pkgsUnstable }:
+
 final: prev:
 
 let
+  specialArgs = {
+    motivewave = { inherit pkgsUnstable; };
+  };
+
   packageDirs = builtins.readDir ./pkgs;
 
   onlyDirs = prev.lib.filterAttrs (name: type: type == "directory") packageDirs;
@@ -8,7 +14,10 @@ let
   packages = builtins.mapAttrs
     (
       name: type:
-        prev.callPackage (./pkgs + "/${name}") { }
+        let
+          args = specialArgs."${name}" or { };
+        in
+          prev.callPackage (./pkgs + "/${name}") args
     )
     onlyDirs;
 
