@@ -52,7 +52,7 @@ jobs:
           echo "New version found. Updating package..."
           
           NEW_HASH=$(nix-prefetch-url "$NEW_URL")
-          NEW_HASH_SRI=$(nix hash convert --type sha256 --to sri "$NEW_HASH")
+
 
           sed -i "s|version = \".*\"|version = \"$NEW_VERSION\";|" pkgs/motivewave/default.nix
           sed -i "s|_build_id = \".*\"|_build_id = \"$NEW_BUILD_ID\";|" pkgs/motivewave/default.nix
