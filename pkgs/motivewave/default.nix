@@ -4,10 +4,9 @@
 stdenv.mkDerivation rec {
   pname = "motivewave";
   version = "7.0.2";
-  _build_id = "616";
 
   src = fetchurl {
-    url = "https://downloads.motivewave.com/builds/${_build_id}/motivewave_${version}_amd64.deb";
+    url = "https://www.motivewave.com/update/download.do?file_type=LINUX";
     sha256 = "1fkf0hlxhl6ywy8hwfhsc6pnqybiw58czp7xlmas8kaj03r3mf7h";
   };
 
@@ -40,6 +39,10 @@ stdenv.mkDerivation rec {
     xorg.libXxf86vm
     xorg.libXtst
   ];
+
+  unpackPhase = ''
+    # Unpacking is handled by the installPhase
+  '';
 
   installPhase = ''
     dpkg-deb -X $src $out
