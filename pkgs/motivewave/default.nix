@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://downloads.motivewave.com/builds/${_build_id}/motivewave_${version}_amd64.deb";
-    sha256 = "1clyb24fc4384vzwxk9b7saxmipdyccbpkaw1cjfi7w65z6k9j11";
+    sha256 = "1fkf0hlxhl6ywy8hwfhsc6pnqybiw58czp7xlmas8kaj03r3mf7h";
   };
 
   nativeBuildInputs = [ autoPatchelfHook dpkg makeWrapper ];
