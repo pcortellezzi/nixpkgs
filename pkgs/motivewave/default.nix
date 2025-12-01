@@ -7,7 +7,7 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "https://www.motivewave.com/update/download.do?file_type=LINUX";
-    sha256 = "1pq4whfxwgmgd42qlz9pxfw6vzcz1wrsqd5c3z9r32hl5r6yp3r4";
+    sha256 = "1n82sm600mhqafx1nbsig7xxp416im6axn9ac24ca67riyrx4ccg";
   };
 
   nativeBuildInputs = [ autoPatchelfHook dpkg makeWrapper ];
