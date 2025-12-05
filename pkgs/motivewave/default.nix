@@ -1,4 +1,4 @@
-{ stdenv, lib, pkgsUnstable, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg, gtk2, gtk3, xorg, licenseFile ? null }:
+{ stdenv, lib, pkgsUnstable, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg_7, gtk2, gtk3, xorg, licenseFile ? null }:
 
 
 stdenv.mkDerivation rec {
