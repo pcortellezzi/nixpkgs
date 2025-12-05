@@ -27,13 +27,11 @@
       packages.${system} = {
         displaylink = pkgs.displaylink;
         motivewave = pkgs.motivewave;
-        evdi = pkgs.linuxPackages_latest.evdi;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = [
             pkgs.displaylink
             pkgs.motivewave
-            pkgs.linuxPackages_latest.evdi
           ];
         };
       };
