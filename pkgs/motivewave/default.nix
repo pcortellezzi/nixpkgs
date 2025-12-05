@@ -31,7 +31,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     bc
-    ffmpeg
+    ffmpeg_7
     gtk2
     gtk3
     pkgsUnstable.jdk25
