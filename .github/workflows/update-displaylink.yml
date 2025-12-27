@@ -14,73 +14,41 @@ jobs:
         with:
           token: ${{ secrets.PAT }}
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@v27
-        with:
-          # Ensure nix-command and flakes are available for nix-prefetch-url and nix hash
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-
-      - name: Update displaylink package
+      - name: Update displaylink from nixpkgs
         run: |
           set -euo pipefail
-          echo "Setting up APT repository for DisplayLink..."
-          # Install curl and jq if not present
-          sudo apt-get update -qq > /dev/null
-          sudo apt-get install -y -qq curl jq > /dev/null
-          # Download and install keyring
-          KEYRING_URL="https://www.synaptics.com/sites/default/files/Ubuntu/pool/stable/main/all/synaptics-repository-keyring.deb"
-          curl -sL -o keyring.deb "$KEYRING_URL"
-          sudo dpkg -i keyring.deb
-          sudo apt-get update -qq > /dev/null
-
-          echo "Fetching latest package information..."
-          # Get the download URI and version info
-          # The output is like: 'URL' filename size hash
-          APT_INFO=$(sudo apt-get -y --print-uris download displaylink-driver)
-          if [ -z "$APT_INFO" ]; then
-            echo "Could not find displaylink-driver package in APT."
-            exit 1
-          fi
           
-          NEW_URL=$(echo "$APT_INFO" | cut -d\' -f2)
-          # Extract version from the filename in the URI
-          NEW_VERSION=$(echo "$NEW_URL" | sed -n 's/.*displaylink-driver-\(.*\)_amd64.deb/\1/p')
+          echo "Fetching latest package information from nixpkgs..."
+          NIXPKGS_URL="https://raw.githubusercontent.com/NixOS/nixpkgs/nixos-unstable/pkgs/os-specific/linux/displaylink/default.nix"
+          CONTENT=$(curl -s "$NIXPKGS_URL")
+          
+          NEW_VERSION=$(echo "$CONTENT" | grep 'version =' | head -n 1 | cut -d'"' -f2)
+          NEW_HASH=$(echo "$CONTENT" | grep 'hash =' | head -n 1 | cut -d'"' -f2)
+          NEW_URL=$(echo "$CONTENT" | grep -o 'https://www.synaptics.com/sites/default/files/exe_files/[^ ]*\.zip' | head -n 1)
 
-          if [ -z "$NEW_VERSION" ]; then
-            echo "Could not parse version from URL: $NEW_URL"
+          if [ -z "$NEW_VERSION" ] || [ -z "$NEW_HASH" ] || [ -z "$NEW_URL" ]; then
+            echo "Error: Could not extract information from nixpkgs."
             exit 1
           fi
 
-          CURRENT_VERSION=$(grep 'version = "' overlays/displaylink.nix | sed -E 's/.*version = "([^\"]+)".*/\1/')
-          echo "Current version: $CURRENT_VERSION, Latest version: $NEW_VERSION"
-
-          if [ "$CURRENT_VERSION" == "$NEW_VERSION" ]; then
-            echo "displaylink is already up to date."
-            exit 0
-          fi
-
-          echo "New version found. Updating package..."
+          echo "Latest version in nixpkgs: $NEW_VERSION"
           
-          NEW_HASH=$(nix-prefetch-url "$NEW_URL")
-          NEW_HASH_SRI=$(nix hash convert --type sha256 --to sri "$NEW_HASH")
+          # Mise à jour du fichier local
+          # On utilise | comme séparateur pour sed à cause des / dans l'URL et le hash
+          sed -i "s|url = ".*";|url = \"$NEW_URL\";|" overlays/displaylink.nix
+          sed -i "s|hash = ".*";|hash = \"$NEW_HASH\";|" overlays/displaylink.nix
 
-          # Use | as a separator for sed because the hash can contain /
-          sed -i "s|version = ".*"|version = \"$NEW_VERSION\";|" overlays/displaylink.nix
-          sed -i "s|url = ".*"|url = \"$NEW_URL\";|" overlays/displaylink.nix
-          sed -i "s|hash = ".*"|hash = \"$NEW_HASH_SRI\";|" overlays/displaylink.nix
-
-          echo "Successfully updated displaylink to $NEW_VERSION"
+          echo "Successfully updated displaylink local overlay to version $NEW_VERSION."
 
       - name: Commit changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          # Check if there are any changes
-          if ! git diff --quiet; then
+          
+          if ! git diff --quiet overlays/displaylink.nix; then
             git add overlays/displaylink.nix
-            git commit -m "displaylink: Auto-update to latest version"
+            git commit -m "displaylink: sync with nixpkgs"
             git push
           else
-            echo "No new version found for displaylink."
+            echo "No changes detected for displaylink."
           fi
