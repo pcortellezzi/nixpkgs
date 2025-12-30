@@ -19,7 +19,12 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ makeWrapper qt6.wrapQtAppsHook ];
-  buildInputs = [ quickshell libqalculate qt6.qtbase ];
+  buildInputs = [
+    quickshell
+    libqalculate
+    qt6.qtbase
+    qt6.qt5compat
+  ];
 
   installPhase = ''
     mkdir -p $out/share/hamr
