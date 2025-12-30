@@ -27,11 +27,13 @@
       packages.${system} = {
         displaylink = pkgs.displaylink;
         motivewave = pkgs.motivewave;
+        hamr = pkgs.hamr;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = [
             pkgs.displaylink
             pkgs.motivewave
+            pkgs.hamr
           ];
         };
       };
