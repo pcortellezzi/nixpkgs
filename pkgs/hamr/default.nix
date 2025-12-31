@@ -5,6 +5,7 @@
 , libqalculate
 , makeWrapper
 , qt6
+, python3
 }:
 
 stdenv.mkDerivation rec {
@@ -24,6 +25,7 @@ stdenv.mkDerivation rec {
     libqalculate
     qt6.qtbase
     qt6.qt5compat
+    python3
   ];
 
   installPhase = ''
@@ -32,8 +34,8 @@ stdenv.mkDerivation rec {
 
     mkdir -p $out/bin
     makeWrapper ${quickshell}/bin/quickshell $out/bin/hamr \
-      --add-flags "-p $out/share/hamr/shell.qml" \
-      --prefix PATH : ${lib.makeBinPath [ libqalculate ]}
+      --add-flags "--id hamr -p $out/share/hamr/shell.qml" \
+      --prefix PATH : ${lib.makeBinPath [ libqalculate python3 ]}
   '';
 
   meta = with lib; {
