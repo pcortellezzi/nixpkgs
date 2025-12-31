@@ -29,12 +29,13 @@ stdenv.mkDerivation rec {
   ];
 
   installPhase = ''
-    mkdir -p $out/share/hamr
-    cp -r . $out/share/hamr
+    mkdir -p $out/share/quickshell/hamr
+    cp -r . $out/share/quickshell/hamr
 
     mkdir -p $out/bin
     makeWrapper ${quickshell}/bin/quickshell $out/bin/hamr \
-      --add-flags "--id hamr -p $out/share/hamr/shell.qml" \
+      --add-flags "--config hamr" \
+      --suffix XDG_CONFIG_DIRS : "$out/share" \
       --prefix PATH : ${lib.makeBinPath [ libqalculate python3 ]}
   '';
 
