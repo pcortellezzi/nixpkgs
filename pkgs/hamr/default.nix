@@ -29,15 +29,17 @@ stdenv.mkDerivation rec {
   ];
 
   installPhase = ''
-    mkdir -p $out/share/quickshell/hamr
-    cp -r . $out/share/quickshell/hamr
+    mkdir -p $out/etc/xdg/quickshell/hamr
+    cp -r . $out/etc/xdg/quickshell/hamr
 
     mkdir -p $out/bin
 
     cat > $out/bin/hamr <<EOF
     #!${stdenv.shell}
-    export XDG_CONFIG_DIRS="$out/share:\''${XDG_CONFIG_DIRS:-}"
+    # Ensure dependencies are in PATH
     export PATH="${lib.makeBinPath [ libqalculate python3 ]}:\''${PATH:-}"
+    # Self-add to XDG_CONFIG_DIRS to support 'nix run' without installation
+    export XDG_CONFIG_DIRS="$out/etc/xdg:\''${XDG_CONFIG_DIRS:-}"
 
     if [ "\$1" = "ipc" ]; then
       exec ${quickshell}/bin/qs --config hamr "\$@"
