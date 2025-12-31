@@ -3,11 +3,11 @@
 
 stdenv.mkDerivation rec {
   pname = "motivewave";
-  version = "7.0.11";
+  version = "7.0.12";
 
   src = fetchurl {
     url = "https://www.motivewave.com/update/download.do?file_type=LINUX";
-    sha256 = "0x7gvgf8q1c7m32f9zpbfbwjzan428qkh4nmdl3l92zggqgdi1bq";
+    sha256 = "19bkpvdzk0cpn5m3m8fjm14m3vkvv2bwb59d8myhy8fl9jchpx1k";
   };
 
   nativeBuildInputs = [ autoPatchelfHook dpkg makeWrapper ];
