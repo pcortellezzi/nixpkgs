@@ -16,6 +16,9 @@
 , jq
 , gnome-desktop
 , gtk3
+, material-symbols
+, nerd-fonts
+, makeFontsConf
 , gobject-introspection
 , wrapGAppsHook3
 }:
@@ -27,6 +30,14 @@ let
     tqdm
     pygobject3
   ]);
+
+  # Bundle fonts for the application
+  hamrFonts = makeFontsConf {
+    fontDirectories = [
+      material-symbols
+      nerd-fonts.jetbrains-mono
+    ];
+  };
 in
 stdenv.mkDerivation rec {
   pname = "hamr";
@@ -90,6 +101,9 @@ stdenv.mkDerivation rec {
 
     # GObject Introspection paths (handled by wrapGAppsHook3 logic usually, but explicit here for safety in custom script)
     export GI_TYPELIB_PATH="$GI_TYPELIB_PATH:\''${GI_TYPELIB_PATH:-}"
+
+    # Custom FontConfig to ensure icons are available
+    export FONTCONFIG_FILE="${hamrFonts}"
 
     if [ "\$1" = "ipc" ]; then
       exec ${quickshell}/bin/qs --config hamr "\$@"
