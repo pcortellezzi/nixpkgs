@@ -40,6 +40,8 @@ stdenv.mkDerivation rec {
     export PATH="${lib.makeBinPath [ libqalculate python3 ]}:\''${PATH:-}"
     # Self-add to XDG_CONFIG_DIRS to support 'nix run' without installation
     export XDG_CONFIG_DIRS="$out/etc/xdg:\''${XDG_CONFIG_DIRS:-}"
+    # Explicitly add qt5compat to QML path
+    export QML2_IMPORT_PATH="${qt6.qt5compat}/${qt6.qtbase.qtQmlPrefix}:\''${QML2_IMPORT_PATH:-}"
 
     if [ "\$1" = "ipc" ]; then
       exec ${quickshell}/bin/qs --config hamr "\$@"
