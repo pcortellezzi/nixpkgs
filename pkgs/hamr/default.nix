@@ -12,7 +12,7 @@
 , fzf
 , xdg-utils
 , libnotify
-, libpulse
+, libpulseaudio
 , jq
 , gnome-desktop
 , gtk3
@@ -55,7 +55,7 @@ stdenv.mkDerivation rec {
     pythonEnv
     gnome-desktop
     gtk3
-    libpulse
+    libpulseaudio
   ];
 
   installPhase = ''
