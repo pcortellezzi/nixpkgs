@@ -37,7 +37,7 @@ let
     src = fetchurl {
       name = "ReadexPro-Variable.ttf";
       url = "https://github.com/google/fonts/raw/main/ofl/readexpro/ReadexPro%5BHEXP,wght%5D.ttf";
-      hash = "sha256-03n33hcdzxpsw8h01b69129w6gxaxd00xyxkk3bi8fwg3rzbm2r6";
+      sha256 = "03n33hcdzxpsw8h01b69129w6gxaxd00xyxkk3bi8fwg3rzbm2r6";
     };
     dontUnpack = true;
     installPhase = ''
