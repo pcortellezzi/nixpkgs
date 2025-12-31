@@ -33,10 +33,20 @@ stdenv.mkDerivation rec {
     cp -r . $out/share/quickshell/hamr
 
     mkdir -p $out/bin
-    makeWrapper ${quickshell}/bin/quickshell $out/bin/hamr \
-      --add-flags "--config hamr" \
-      --suffix XDG_CONFIG_DIRS : "$out/share" \
-      --prefix PATH : ${lib.makeBinPath [ libqalculate python3 ]}
+
+    cat > $out/bin/hamr <<EOF
+    #!${stdenv.shell}
+    export XDG_CONFIG_DIRS="$out/share:\''${XDG_CONFIG_DIRS:-}"
+    export PATH="${lib.makeBinPath [ libqalculate python3 ]}:\''${PATH:-}"
+
+    if [ "\$1" = "ipc" ]; then
+      exec ${quickshell}/bin/qs --config hamr "\$@"
+    else
+      exec ${quickshell}/bin/quickshell --config hamr "\$@"
+    fi
+    EOF
+
+    chmod +x $out/bin/hamr
   '';
 
   meta = with lib; {
