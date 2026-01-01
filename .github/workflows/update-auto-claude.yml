@@ -1,0 +1,70 @@
+name: Update auto-claude package
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 11 * * *' # Runs every day at 11:00 AM
+
+jobs:
+  update-auto-claude:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Update auto-claude package
+        run: |
+          set -euo pipefail
+
+          # Get current version
+          CURRENT_VERSION=$(grep 'version = "' pkgs/auto-claude/default.nix | sed -E 's/.*version = "([^"]+)".*/\1/')
+          echo "Current version: $CURRENT_VERSION"
+
+          # Get latest release tag from GitHub API
+          echo "Fetching latest release information from GitHub..."
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/AndyMik90/Auto-Claude/releases/latest | jq -r .tag_name | sed 's/^v//')
+          
+          if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" == "null" ]; then
+            echo "Error: Could not fetch latest release from GitHub."
+            exit 1
+          fi
+          echo "Latest release: $LATEST_RELEASE"
+
+          if [ "$CURRENT_VERSION" == "$LATEST_RELEASE" ]; then
+            echo "auto-claude is already up to date ($CURRENT_VERSION)."
+            exit 0
+          fi
+
+          # Get new hash
+          echo "Fetching new hash for version $LATEST_RELEASE..."
+          URL="https://github.com/AndyMik90/Auto-Claude/releases/download/v${LATEST_RELEASE}/Auto-Claude-${LATEST_RELEASE}-linux-x86_64.AppImage"
+          NEW_HASH=$(nix-prefetch-url "$URL")
+          echo "New hash: $NEW_HASH"
+
+          # Update file
+          sed -i "s|version = \"$CURRENT_VERSION\"|version = \"$LATEST_RELEASE\"|" pkgs/auto-claude/default.nix
+          sed -i "s|sha256 = \".*\"|sha256 = \"$NEW_HASH\"|" pkgs/auto-claude/default.nix
+
+          echo "Successfully updated auto-claude to $LATEST_RELEASE"
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          # Check if there are any changes
+          if ! git diff --quiet; then
+            NEW_VERSION=$(grep 'version = "' pkgs/auto-claude/default.nix | sed -E 's/.*version = "([^"]+)".*/\1/')
+            git add pkgs/auto-claude/default.nix
+            git commit -m "auto-claude: Auto-update to $NEW_VERSION"
+            git push
+          else
+            echo "No changes to commit."
+          fi
