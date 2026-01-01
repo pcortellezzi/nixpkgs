@@ -28,12 +28,14 @@
         displaylink = pkgs.displaylink;
         motivewave = pkgs.motivewave;
         hamr = pkgs.hamr;
+        auto-claude = pkgs.auto-claude;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = [
             pkgs.displaylink
             pkgs.motivewave
             pkgs.hamr
+            pkgs.auto-claude
           ];
         };
       };

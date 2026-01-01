@@ -8,7 +8,7 @@ let
   version = "2.7.1";
   src = fetchurl {
     url = "https://github.com/AndyMik90/Auto-Claude/releases/download/v${version}/Auto-Claude-${version}-linux-x86_64.AppImage";
-    sha256 = "ca4c2d9bff6093c7887d7e4e9c69516161e022f4fa610c71aaa9af6ff8b93388";
+    sha256 = "121kp7w6zbx9m9qhqqgsyhif0qb1a5lrqkkygn4cg4v0zydjsk6a";
   };
 in
 appimageTools.wrapType2 {
