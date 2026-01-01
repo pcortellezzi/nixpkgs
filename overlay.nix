@@ -3,25 +3,19 @@
 final: prev:
 
 let
-  specialArgs = {
-    motivewave = { inherit pkgsUnstable; };
-  };
+  # On crée un scope étendu qui contient nos dépendances spéciales
+  # callPackage piochera dedans automatiquement selon les besoins du paquet
+  callPackage = prev.lib.callPackageWith (prev // { inherit pkgsUnstable; });
 
   packageDirs = builtins.readDir ./pkgs;
-
   onlyDirs = prev.lib.filterAttrs (name: type: type == "directory") packageDirs;
 
+  # On génère tous les paquets du dossier ./pkgs
   packages = builtins.mapAttrs
-    (
-      name: type:
-        let
-          args = specialArgs."${name}" or { };
-        in
-          prev.callPackage (./pkgs + "/${name}") args
-    )
+    (name: type: callPackage (./pkgs + "/${name}") { })
     onlyDirs;
 
-  # Import all overlays from the overlays/ directory
+  # Import de tous les fichiers .nix du dossier ./overlays
   customOverlays = prev.lib.attrValues (
     prev.lib.mapAttrs (
       name: type:
@@ -32,5 +26,5 @@ let
   );
 
 in
-
+  # On fusionne nos paquets et les résultats des overlays personnalisés
   prev.lib.foldl (acc: overlay: prev.lib.recursiveUpdate acc (overlay final prev)) packages customOverlays

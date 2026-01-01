@@ -9,6 +9,7 @@
   outputs = { self, nixpkgs, nixpkgs-unstable }:
     let
       system = "x86_64-linux";
+      lib = nixpkgs.lib;
 
       pkgsUnstable = import nixpkgs-unstable {
         inherit system;
@@ -24,20 +25,22 @@
     in
     {
       overlays.default = import ./overlay.nix { inherit pkgsUnstable; };
-      packages.${system} = {
-        displaylink = pkgs.displaylink;
-        motivewave = pkgs.motivewave;
-        hamr = pkgs.hamr;
-        auto-claude = pkgs.auto-claude;
-        default = pkgs.buildEnv {
-          name = "all-my-packages";
-          paths = [
-            pkgs.displaylink
-            pkgs.motivewave
-            pkgs.hamr
-            pkgs.auto-claude
-          ];
+      
+      packages.${system} = 
+        let
+          # Liste des noms de dossiers dans ./pkgs
+          pkgsNames = builtins.attrNames (
+            lib.filterAttrs (name: type: type == "directory") (builtins.readDir ./pkgs)
+          );
+          
+          # Création d'un set { name = pkgs.${name}; } pour chaque paquet
+          myCustomPkgs = lib.genAttrs pkgsNames (name: pkgs.${name});
+        in
+        myCustomPkgs // {
+          default = pkgs.buildEnv {
+            name = "all-my-packages";
+            paths = builtins.attrValues myCustomPkgs;
+          };
         };
-      };
     };
 }
