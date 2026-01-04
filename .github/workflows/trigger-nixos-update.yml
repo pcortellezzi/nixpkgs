@@ -12,19 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: "Set up SSH"
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.NIXOS_CONFIG_UPDATER_PRIVATE_KEY }}
-
       - name: "Configure Git"
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions-bot@github.com"
 
       - name: "Clone NixOS Config repository"
+        env:
+          PAT: ${{ secrets.PAT }}
         run: |
-          git clone git@github.com:pcortellezzi/nixos-config.git
+          git clone https://x-access-token:${PAT}@github.com/pcortellezzi/nixos-config.git
 
       - name: Install Nix
         uses: cachix/install-nix-action@v27
