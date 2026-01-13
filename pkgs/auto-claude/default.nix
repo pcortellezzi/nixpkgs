@@ -5,10 +5,10 @@
 
 let
   pname = "auto-claude";
-  version = "2.7.2";
+  version = "2.7.3";
   src = fetchurl {
     url = "https://github.com/AndyMik90/Auto-Claude/releases/download/v${version}/Auto-Claude-${version}-linux-x86_64.AppImage";
-    sha256 = "102jf0817mlaqzl6q5ffsaj5r4p4m4vhrws10if60wz72lfs73n0";
+    sha256 = "1w6gx481yclfdh674cvmbjwv2s4w0by8rxdgcb7h5grp41bf31gi";
   };
 in
 appimageTools.wrapType2 {
