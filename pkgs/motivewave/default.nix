@@ -1,4 +1,4 @@
-{ stdenv, lib, pkgsUnstable, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg_7, gtk2, gtk3, xorg, licenseFile ? null }:
+{ stdenv, lib, pkgsUnstable, jdk26, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg_7, gtk2, gtk3, xorg, licenseFile ? null }:
 
 
 stdenv.mkDerivation rec {
@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
     ffmpeg_7
     gtk2
     gtk3
-    pkgsUnstable.jdk25
+    jdk26
     xorg.xrandr
     xorg.libXxf86vm
     xorg.libXtst
@@ -64,7 +64,7 @@ stdenv.mkDerivation rec {
     #chmod +x $out/usr/share/$pname/jre/bin/*
 
     install -d $out/bin
-    makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname --prefix PATH : "${lib.makeBinPath [ coreutils bc pkgsUnstable.jdk25 ]}" \
+    makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname --prefix PATH : "${lib.makeBinPath [ coreutils bc jdk26 ]}" \
       --run "mkdir -p \$HOME/.$pname" \
       ${lib.optionalString (licenseFile != null) ''--run 'sh -c "cat ${licenseFile} > $HOME/.${pname}/mwave_license.txt"' ''}
   '';

@@ -3,9 +3,11 @@
 final: prev:
 
 let
-  # On crée un scope étendu qui contient nos dépendances spéciales
-  # callPackage piochera dedans automatiquement selon les besoins du paquet
-  callPackage = prev.lib.callPackageWith (prev // { inherit pkgsUnstable; });
+  # Build jdk26 first — it has no dependency on other custom packages
+  jdk26 = prev.callPackage ./pkgs/jdk26 { };
+
+  # callPackage with jdk26 and pkgsUnstable available for other packages
+  callPackage = prev.lib.callPackageWith (prev // { inherit pkgsUnstable jdk26; });
 
   packageDirs = builtins.readDir ./pkgs;
   onlyDirs = prev.lib.filterAttrs (name: type: type == "directory") packageDirs;
