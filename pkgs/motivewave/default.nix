@@ -64,7 +64,9 @@ stdenv.mkDerivation rec {
     #chmod +x $out/usr/share/$pname/jre/bin/*
 
     install -d $out/bin
-    makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname --prefix PATH : "${lib.makeBinPath [ coreutils bc jdk26 ]}" \
+    makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname \
+      --prefix PATH : "${lib.makeBinPath [ coreutils bc jdk26 ]}" \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk2 gtk3 xorg.libXtst xorg.libXxf86vm ]}" \
       --run "mkdir -p \$HOME/.$pname" \
       ${lib.optionalString (licenseFile != null) ''--run 'sh -c "cat ${licenseFile} > $HOME/.${pname}/mwave_license.txt"' ''}
   '';
