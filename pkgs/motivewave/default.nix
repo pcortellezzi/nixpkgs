@@ -67,6 +67,8 @@ stdenv.mkDerivation rec {
     makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname \
       --prefix PATH : "${lib.makeBinPath [ coreutils bc jdk26 ]}" \
       --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk2 gtk3 xorg.libXtst xorg.libXxf86vm ]}" \
+      --set LC_ALL en_US.UTF-8 \
+      --set LANG en_US.UTF-8 \
       --run "mkdir -p \$HOME/.$pname" \
       ${lib.optionalString (licenseFile != null) ''--run 'sh -c "cat ${licenseFile} > $HOME/.${pname}/mwave_license.txt"' ''}
   '';
