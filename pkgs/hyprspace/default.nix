@@ -1,7 +1,14 @@
 { lib
 , stdenv
 , fetchFromGitHub
-, hyprland
+, hyprland-0_54_3
+, hyprutils
+, hyprgraphics
+, aquamarine
+, hyprlang
+, hyprcursor
+, hyprland-protocols
+, wayland-protocols
 , pkg-config
 , pixman
 , libdrm
@@ -11,6 +18,8 @@
 , udev
 , wayland
 , libxkbcommon
+, mesa
+, libglvnd
 , nix-update-script
 }:
 
@@ -30,7 +39,14 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [
-    hyprland
+    hyprland-0_54_3
+    hyprutils
+    hyprgraphics
+    aquamarine
+    hyprlang
+    hyprcursor
+    hyprland-protocols
+    wayland-protocols
     pixman
     libdrm
     pango
@@ -39,7 +55,14 @@ stdenv.mkDerivation (finalAttrs: {
     udev
     wayland
     libxkbcommon
+    mesa
+    libglvnd
   ];
+
+  postPatch = ''
+    # Patch the Makefile to add additional include paths for hyprland dependencies
+    sed -i 's|INCLUDES = `pkg-config|INCLUDES = -I${libdrm.dev}/include/libdrm -I${hyprland-0_54_3.dev}/include/hyprland/protocols `pkg-config|' Makefile
+  '';
 
   buildPhase = ''
     make all

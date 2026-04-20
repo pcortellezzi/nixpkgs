@@ -4,9 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    hyprland.url = "github:hyprwm/Hyprland/v0.54.3";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, hyprland }:
     let
       system = "x86_64-linux";
       lib = nixpkgs.lib;
