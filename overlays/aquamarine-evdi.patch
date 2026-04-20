@@ -1,20 +1,25 @@
 diff --git a/src/backend/drm/DRM.cpp b/src/backend/drm/DRM.cpp
-index 35a923d..a6fa6ca 100644
+index ad771d4..a9d00a2 100644
 --- a/src/backend/drm/DRM.cpp
 +++ b/src/backend/drm/DRM.cpp
-@@ -152,6 +152,11 @@ static std::vector<SP<CSessionDevice>> scanGPUs(SP<CBackend> backend) {
+@@ -152,6 +152,16 @@ static std::vector<SP<CSessionDevice>> scanGPUs(SP<CBackend> backend) {
+             continue;
+         }
  
-         auto drmVer     = drmGetVersion(sessionDevice->fd);
-         auto drmVerName = drmVer->name ? drmVer->name : "unknown";
 +        // EVDI DEBUG
-+        bool isEvdi = std::string_view(drmVerName) == "evdi";
-+        backend->log(AQ_LOG_DEBUG, std::format("drm: EVDI-DEBUG: Device {} driver={} isEvdi={}",
-+            sessionDevice->path, drmVerName, isEvdi ? "YES" : "NO"));
++        auto drmVer = drmGetVersion(sessionDevice->fd);
++        if (drmVer) {
++            auto name = drmVer->name ? drmVer->name : "unknown";
++            bool isEvdi = std::string_view(name) == "evdi";
++            backend->log(AQ_LOG_DEBUG, std::format("drm: EVDI-DEBUG: Device {} driver={} isEvdi={}",
++                sessionDevice->path, name, isEvdi ? "YES" : "NO"));
++            drmFreeVersion(drmVer);
++        }
 +
-         if (std::string_view(drmVerName) != "evdi")
-             sessionDevice->resolveMatchingRenderNode(device);
+         sessionDevice->resolveMatchingRenderNode(device);
  
-@@ -737,10 +742,22 @@ bool Aquamarine::CDRMBackend::registerGPU(SP<CSessionDevice> gpu_, SP<CDRMBacken
+         udev_device_unref(device);
+@@ -786,10 +796,22 @@ bool Aquamarine::CDRMBackend::registerGPU(SP<CSessionDevice> gpu_, SP<CDRMBacken
      if (std::string_view(drmVerName) == "evdi")
          primary = {};
  
