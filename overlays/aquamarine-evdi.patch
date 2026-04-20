@@ -1,0 +1,44 @@
+diff --git a/src/backend/drm/DRM.cpp b/src/backend/drm/DRM.cpp
+index 5d2cb72..9e8f4a2 100644
+--- a/src/backend/drm/DRM.cpp
++++ b/src/backend/drm/DRM.cpp
+@@ -161,6 +161,16 @@ static std::vector<SP<CSessionDevice>> scanGPUs(SP<CBackend> backend) {
+         if (numBuiltinPanels > maxBuiltinPanels) {
+             maxBuiltinPanelsGPU = sessionDevice;
+             maxBuiltinPanels    = numBuiltinPanels;
++        }
++
++        // EVDI DEBUG
++        auto drmVer = drmGetVersion(sessionDevice->fd);
++        if (drmVer) {
++            auto name = drmVer->name ? drmVer->name : "unknown";
++            bool isEvdi = std::string_view(name) == "evdi";
++            backend->log(AQ_LOG_INFO, std::format("drm: EVDI-DEBUG: Device {} driver={} isEvdi={}", 
++                sessionDevice->path, name, isEvdi ? "YES" : "NO"));
++            drmFreeVersion(drmVer);
+         }
+     }
+ 
+@@ -450,6 +460,20 @@ bool Aquamarine::CDRMBackend::registerGPU(SP<CSessionDevice> gpu_, SP<CDRMBacken
+     auto drmVerName = drmVer->name ? drmVer->name : "unknown";
+     if (std::string_view(drmVerName) == "evdi")
+         primary = {};
++        
++    // EVDI DEBUG
++    bool isEvdiDevice = std::string_view(drmVerName) == "evdi";
++    if (isEvdiDevice) {
++        backend->log(AQ_LOG_INFO, std::format("drm: EVDI-DEBUG: EVDI device {} detected in registerGPU", gpuName));
++    }
++
++    // EVDI DEBUG: Check render node
++    if (isEvdiDevice) {
++        backend->log(AQ_LOG_INFO, std::format("drm: EVDI-DEBUG: EVDI {} fd={} renderNodeFd={}", 
++            gpu_->path, gpu_->fd, gpu_->renderNodeFd));
++        if (gpu_->renderNodeFd < 0) {
++            backend->log(AQ_LOG_INFO, std::format("drm: EVDI-DEBUG: Setting renderNodeFd to fd for {}", gpu_->path));
++            gpu_->renderNodeFd = gpu_->fd;
++        }
++    }
+ 
+     backend->log(AQ_LOG_DEBUG,
+                  std::format("drm: Starting backend for {}, with driver {}{}", drmName ? drmName : "unknown", drmVerName,
