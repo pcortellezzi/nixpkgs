@@ -19,13 +19,13 @@
 
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ (import ./overlay.nix { inherit pkgsUnstable; }) ];
+        overlays = [ (import ./overlay.nix { inherit pkgsUnstable hyprland; }) ];
         config.allowUnfree = true;
       };
 
     in
     {
-      overlays.default = import ./overlay.nix { inherit pkgsUnstable; };
+      overlays.default = import ./overlay.nix { inherit pkgsUnstable hyprland; };
       
       packages.${system} = 
         let

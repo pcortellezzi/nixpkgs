@@ -1,4 +1,4 @@
-{ pkgsUnstable }:
+{ pkgsUnstable, hyprland }:
 
 final: prev:
 
@@ -6,10 +6,9 @@ let
   # Build jdk26 first — it has no dependency on other custom packages
   jdk26 = prev.callPackage ./pkgs/jdk26 { };
 
-  # Hyprland 0.54.3 and its dependencies from flake
-  hyprland-flake = builtins.getFlake "github:hyprwm/Hyprland/v0.54.3";
-  hyprland-0_54_3 = hyprland-flake.packages.${prev.stdenv.hostPlatform.system}.hyprland;
-  hyprland-unwrapped = hyprland-flake.packages.${prev.stdenv.hostPlatform.system}.hyprland-unwrapped;
+  # Hyprland 0.54.3 and its dependencies from flake input
+  hyprland-0_54_3 = hyprland.packages.${prev.stdenv.hostPlatform.system}.hyprland;
+  hyprland-unwrapped = hyprland.packages.${prev.stdenv.hostPlatform.system}.hyprland-unwrapped;
   
   # Extract specific dependencies from hyprland's build inputs
   hyprland-deps = builtins.listToAttrs (map (dep: { 
