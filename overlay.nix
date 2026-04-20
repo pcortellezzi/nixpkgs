@@ -18,14 +18,14 @@ let
     onlyDirs;
 
   # Import de tous les fichiers .nix du dossier ./overlays
-  customOverlays = prev.lib.attrValues (
+  customOverlays = prev.lib.filter (x: x != null) (prev.lib.attrValues (
     prev.lib.mapAttrs (
       name: type:
         if type == "regular" && prev.lib.hasSuffix ".nix" name
         then import (./overlays + "/${name}")
         else null
     ) (builtins.readDir ./overlays)
-  );
+  ));
 
 in
   # On fusionne nos paquets et les résultats des overlays personnalisés
