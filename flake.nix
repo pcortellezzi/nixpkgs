@@ -2,46 +2,59 @@
   description = "Paquets personnels de Philippe";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     hyprland.url = "github:hyprwm/Hyprland/v0.54.3";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, hyprland }:
+  outputs = { self, nixpkgs, hyprland }:
     let
       system = "x86_64-linux";
       lib = nixpkgs.lib;
 
-      pkgsUnstable = import nixpkgs-unstable {
-        inherit system;
-        config.allowUnfree = true;
-      };
-
+      # Create base nixpkgs with hyprland overlay
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ (import ./overlay.nix { inherit pkgsUnstable hyprland; }) ];
+        overlays = [ 
+          hyprland.overlays.hyprland-packages
+          (final: prev: 
+            let
+              # callPackage for our custom packages
+              callPackage = prev.lib.callPackageWith prev;
+              
+              # Build our custom packages
+              packageDirs = builtins.readDir ./pkgs;
+              onlyDirs = prev.lib.filterAttrs (name: type: type == "directory") packageDirs;
+              customPackages = builtins.mapAttrs
+                (name: type: callPackage (./pkgs + "/${name}") { })
+                onlyDirs;
+                
+            in
+              customPackages
+          )
+        ];
         config.allowUnfree = true;
       };
 
     in
     {
-      overlays.default = import ./overlay.nix { inherit pkgsUnstable hyprland; };
+      overlays.default = final: prev: {
+        inherit (pkgs) 
+          hyprland hyprspace
+          jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave;
+      };
       
-      packages.${system} = 
-        let
-          # Liste des noms de dossiers dans ./pkgs
-          pkgsNames = builtins.attrNames (
-            lib.filterAttrs (name: type: type == "directory") (builtins.readDir ./pkgs)
-          );
-          
-          # Création d'un set { name = pkgs.${name}; } pour chaque paquet
-          myCustomPkgs = lib.genAttrs pkgsNames (name: pkgs.${name});
-        in
-        myCustomPkgs // {
-          default = pkgs.buildEnv {
-            name = "all-my-packages";
-            paths = builtins.attrValues myCustomPkgs;
-          };
+      packages.${system} = {
+        inherit (pkgs) 
+          hyprland hyprspace
+          jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave;
+        
+        default = pkgs.buildEnv {
+          name = "all-my-packages";
+          paths = with pkgs; [ 
+            hyprland hyprspace
+            jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave
+          ];
         };
+      };
     };
 }

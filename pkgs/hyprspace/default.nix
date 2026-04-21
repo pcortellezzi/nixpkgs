@@ -1,7 +1,7 @@
 { lib
 , stdenv
 , fetchFromGitHub
-, hyprland-0_54_3
+, hyprland
 , hyprutils
 , hyprgraphics
 , aquamarine
@@ -39,7 +39,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [
-    hyprland-0_54_3
+    hyprland
     hyprutils
     hyprgraphics
     aquamarine
@@ -61,7 +61,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   postPatch = ''
     # Patch the Makefile to add additional include paths for hyprland dependencies
-    sed -i 's|INCLUDES = `pkg-config|INCLUDES = -I${libdrm.dev}/include/libdrm -I${hyprland-0_54_3.dev}/include/hyprland/protocols `pkg-config|' Makefile
+    sed -i 's|INCLUDES = `pkg-config|INCLUDES = -I${libdrm.dev}/include/libdrm -I${hyprland.dev}/include/hyprland/protocols `pkg-config|' Makefile
   '';
 
   buildPhase = ''

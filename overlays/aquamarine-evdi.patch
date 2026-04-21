@@ -1,44 +1,27 @@
-diff --git a/src/backend/drm/DRM.cpp b/src/backend/drm/DRM.cpp
-index ad771d4..a9d00a2 100644
 --- a/src/backend/drm/DRM.cpp
 +++ b/src/backend/drm/DRM.cpp
-@@ -152,6 +152,16 @@ static std::vector<SP<CSessionDevice>> scanGPUs(SP<CBackend> backend) {
-             continue;
-         }
+@@ -778,6 +778,12 @@ bool Aquamarine::CDRMBackend::registerGPU(SP<CSessionDevice> gpu_, SP<CDRMBacken
+     auto drmVer     = drmGetVersion(gpu->fd);
+     auto drmVerName = drmVer->name ? drmVer->name : "unknown";
  
-+        // EVDI DEBUG
-+        auto drmVer = drmGetVersion(sessionDevice->fd);
-+        if (drmVer) {
-+            auto name = drmVer->name ? drmVer->name : "unknown";
-+            bool isEvdi = std::string_view(name) == "evdi";
-+            backend->log(AQ_LOG_DEBUG, std::format("drm: EVDI-DEBUG: Device {} driver={} isEvdi={}",
-+                sessionDevice->path, name, isEvdi ? "YES" : "NO"));
-+            drmFreeVersion(drmVer);
-+        }
++    // EVDI DEBUG
++    bool isEvdi = std::string_view(drmVerName) == "evdi";
++    backend->log(AQ_LOG_DEBUG, std::format("drm: EVDI-DEBUG: Device {} driver={} isEvdi={}",
++        gpu->path, drmVerName, isEvdi ? "YES" : "NO"));
 +
-         sessionDevice->resolveMatchingRenderNode(device);
- 
-         udev_device_unref(device);
-@@ -786,10 +796,22 @@ bool Aquamarine::CDRMBackend::registerGPU(SP<CSessionDevice> gpu_, SP<CDRMBacken
      if (std::string_view(drmVerName) == "evdi")
          primary = {};
  
-+    // EVDI DEBUG
-+    bool isEvdiDevice = std::string_view(drmVerName) == "evdi";
-+    if (isEvdiDevice) {
-+        backend->log(AQ_LOG_DEBUG, std::format("drm: EVDI-DEBUG: EVDI device {} detected in registerGPU", gpuName));
-+    }
-+
+@@ -786,6 +792,13 @@ bool Aquamarine::CDRMBackend::registerGPU(SP<CSessionDevice> gpu_, SP<CDRMBacken
      backend->log(AQ_LOG_DEBUG,
                   std::format("drm: Starting backend for {}, with driver {}{}", drmName ? drmName : "unknown", drmVerName,
                               (primary ? std::format(" with primary {}", primary->gpu->path) : "")));
- 
++
 +    // EVDI: Use card fd as render node fallback
-+    if (isEvdiDevice && gpu_->renderNodeFd < 0) {
++    if (isEvdi && gpu_->renderNodeFd < 0) {
 +        backend->log(AQ_LOG_DEBUG, std::format("drm: EVDI: Setting renderNodeFd to fd for {}", gpu_->path));
 +        gpu_->renderNodeFd = gpu_->fd;
 +    }
 +
      drmFreeVersion(drmVer);
  
-     listeners.gpuChange = gpu->events.change.listen([this](const CSessionDevice::SChangeEvent& E) {
