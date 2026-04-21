@@ -70,7 +70,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   installPhase = ''
     mkdir -p $out/lib
-    install -D -m 0755 Hyprspace.so $out/lib/Hyprspace.so
+    install -D -m 0755 Hyprspace.so $out/lib/libhyprspace.so
   '';
 
   passthru.updateScript = nix-update-script { };
