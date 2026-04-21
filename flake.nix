@@ -9,57 +9,59 @@
   outputs = { self, nixpkgs, hyprland }:
     let
       system = "x86_64-linux";
-      lib = nixpkgs.lib;
+      
+      # Définition de l'overlay principal
+      defaultOverlay = final: prev:
+        let
+          # Fonction utilitaire pour composer les overlays
+          compose = overlays: f: p:
+            builtins.foldl' (acc: overlay: 
+              let 
+                currentFinal = f;
+                currentPrev = p // acc;
+                newSet = overlay currentFinal currentPrev;
+              in acc // newSet
+            ) { } overlays;
 
-      # Create base nixpkgs with hyprland overlay
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [
+          # Overlay pour nos paquets personnalisés et overrides de cohérence
+          customPkgsOverlay = f: p: 
+            let
+              callPackage = f.lib.callPackageWith f;
+              jdk26 = callPackage ./pkgs/jdk26 { };
+            in {
+              inherit jdk26;
+              motivewave = callPackage ./pkgs/motivewave { pkgsUnstable = f; inherit jdk26; };
+              plasma-panel-colorizer = callPackage ./pkgs/plasma-panel-colorizer { };
+              plasma-window-title-applet = callPackage ./pkgs/plasma-window-title-applet { };
+              krohnkite = callPackage ./pkgs/krohnkite { };
+              
+              # Force hyprland à utiliser l'aquamarine patché (défini par l'overlay précédent)
+              hyprland = p.hyprland.override {
+                aquamarine = f.aquamarine;
+              };
+              
+              # Force hyprspace à utiliser le hyprland et l'aquamarine patchés
+              hyprspace = callPackage ./pkgs/hyprspace {
+                hyprland = f.hyprland;
+                aquamarine = f.aquamarine;
+              };
+            };
+        in
+        compose [
           hyprland.overlays.hyprland-packages
           (import ./overlays/aquamarine-evdi.nix)
           (import ./overlays/displaylink.nix)
-          (final: prev:
-            let
-              # callPackage for our custom packages
-              callPackage = prev.lib.callPackageWith prev;
+          customPkgsOverlay
+        ] final prev;
 
-              # Build our custom packages
-              packageDirs = builtins.readDir ./pkgs;
-              
-              # First build jdk26 (needed by motivewave)
-              jdk26 = callPackage ./pkgs/jdk26 { };
-
-              # Then build other packages (except motivewave and jdk26 which is already built)
-              packagesNames = builtins.attrNames (prev.lib.filterAttrs (name: type: name != "motivewave" && name != "jdk26" && type == "directory") packageDirs);
-              packagesWithout = builtins.listToAttrs (map (name: {
-                name = name;
-                value = callPackage (./pkgs + "/${name}") { };
-              }) packagesNames);
-
-            in
-              # Finally build motivewave with jdk26 passed explicitly
-              packagesWithout // {
-                inherit jdk26;
-                motivewave = callPackage ./pkgs/motivewave {
-                  pkgsUnstable = prev;
-                  jdk26 = jdk26;
-                };
-              }
-          )
-        ];
+      # Instance de pkgs pour les sorties locales du flake
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ defaultOverlay ];
         config.allowUnfree = true;
       };
-
-    in
-    {
-      overlays.default = final: prev: {
-        # Expose patched packages
-        inherit (pkgs) aquamarine displaylink;
-        # Expose our custom packages
-        inherit (pkgs)
-          hyprland hyprspace
-          jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave;
-      };
+    in {
+      overlays.default = defaultOverlay;
 
       packages.${system} = {
         inherit (pkgs)
