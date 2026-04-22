@@ -12,19 +12,31 @@ in
 appimageTools.wrapType2 {
   inherit pname version src;
 
-  extraInstallCommands = ''
-    install -m 444 -D ${appimageContents}/tealstreet-v3.desktop -t $out/share/applications
-    substituteInPlace $out/share/applications/tealstreet-v3.desktop \
-      --replace 'Exec=tealstreet --no-sandbox %U' 'Exec=tealstreet --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --no-sandbox %U'
-    cp -r ${appimageContents}/usr/share/icons $out/share
-  '';
-
   extraPkgs = pkgs: with pkgs; [
     libva
+    pipewire
+    wayland
+    libglvnd
   ];
 
-  # Force Wayland/Ozone flags
-  extraArgs = "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations";
+  extraInstallCommands = ''
+    # The wrapType2 creates a wrapper in $out/bin/${pname}
+    # We rename it and create our own wrapper to pass Wayland/Ozone flags
+    mv $out/bin/${pname} $out/bin/${pname}-wrapped
+    cat > $out/bin/${pname} <<EOF
+#!/bin/sh
+# Force Wayland for Electron apps
+export NIXOS_OZONE_WL=1
+exec $out/bin/${pname}-wrapped --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations "\$@"
+EOF
+    chmod +x $out/bin/${pname}
+
+    # Install desktop file and icons
+    install -m 444 -D ${appimageContents}/tealstreet-v3.desktop -t $out/share/applications
+    substituteInPlace $out/share/applications/tealstreet-v3.desktop \
+      --replace 'Exec=AppRun' 'Exec=${pname}'
+    cp -r ${appimageContents}/usr/share/icons $out/share
+  '';
 
   meta = with lib; {
     description = "Tealstreet Terminal - Professional crypto trading terminal";
