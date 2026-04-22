@@ -15,9 +15,16 @@ appimageTools.wrapType2 {
   extraInstallCommands = ''
     install -m 444 -D ${appimageContents}/tealstreet-v3.desktop -t $out/share/applications
     substituteInPlace $out/share/applications/tealstreet-v3.desktop \
-      --replace 'Exec=AppRun' 'Exec=${pname}'
+      --replace 'Exec=tealstreet --no-sandbox %U' 'Exec=tealstreet --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --no-sandbox %U'
     cp -r ${appimageContents}/usr/share/icons $out/share
   '';
+
+  extraPkgs = pkgs: with pkgs; [
+    libva
+  ];
+
+  # Force Wayland/Ozone flags
+  extraArgs = "--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations";
 
   meta = with lib; {
     description = "Tealstreet Terminal - Professional crypto trading terminal";
