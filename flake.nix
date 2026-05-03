@@ -35,7 +35,8 @@
               plasma-window-title-applet = callPackage ./pkgs/plasma-window-title-applet { };
               krohnkite = callPackage ./pkgs/krohnkite { };
               tealstreet = callPackage ./pkgs/tealstreet { };
-              
+              opencode-voice-models = callPackage ./pkgs/opencode-voice-models { };
+
               # Force hyprland à utiliser l'aquamarine patché (défini par l'overlay précédent)
               hyprland = p.hyprland.override {
                 aquamarine = f.aquamarine;
@@ -67,13 +68,13 @@
       packages.${system} = {
         inherit (pkgs)
           hyprland hyprspace
-          jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave tealstreet;
+          jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave tealstreet opencode-voice-models;
 
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = with pkgs; [
             hyprland hyprspace
-            jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave tealstreet
+            jdk26 plasma-panel-colorizer plasma-window-title-applet krohnkite motivewave tealstreet opencode-voice-models
           ];
         };
       };
