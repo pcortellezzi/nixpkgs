@@ -1,12 +1,12 @@
-name: Update motivewave package
+name: Update krohnkite package
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '0 11 * * *'
 
 jobs:
-  update-motivewave:
+  update-krohnkite:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -21,17 +21,17 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Run update script
-        run: bash pkgs/motivewave/update.sh
+        run: bash pkgs/krohnkite/update.sh
 
       - name: Commit changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          if ! git diff --quiet pkgs/motivewave/default.nix; then
-            NEW_VERSION=$(grep 'version =' pkgs/motivewave/default.nix | head -1 | cut -d'"' -f2)
-            git add pkgs/motivewave/default.nix
-            git commit -m "motivewave: auto-update to $NEW_VERSION"
+          if ! git diff --quiet pkgs/krohnkite/default.nix; then
+            NEW_VERSION=$(grep 'version =' pkgs/krohnkite/default.nix | head -1 | cut -d'"' -f2)
+            git add pkgs/krohnkite/default.nix
+            git commit -m "krohnkite: auto-update to $NEW_VERSION"
             git push
           else
-            echo "motivewave is already up to date."
+            echo "krohnkite is already up to date."
           fi

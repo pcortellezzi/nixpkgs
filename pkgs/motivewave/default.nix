@@ -1,4 +1,4 @@
-{ stdenv, lib, pkgsUnstable, jdk26, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg_7, gtk2, gtk3, xorg, licenseFile ? null }:
+{ stdenv, lib, pkgsUnstable, jdk26, fetchurl, autoPatchelfHook, dpkg, makeWrapper, coreutils, bc, ffmpeg_7, gtk2, gtk3, xrandr, libxxf86vm, libxtst, licenseFile ? null }:
 
 
 stdenv.mkDerivation rec {
@@ -35,9 +35,9 @@ stdenv.mkDerivation rec {
     gtk2
     gtk3
     jdk26
-    xorg.xrandr
-    xorg.libXxf86vm
-    xorg.libXtst
+    xrandr
+    libxxf86vm
+    libxtst
   ];
 
   unpackPhase = ''
@@ -66,7 +66,7 @@ stdenv.mkDerivation rec {
     install -d $out/bin
     makeWrapper $out/usr/share/$pname/run.sh $out/bin/$pname \
       --prefix PATH : "${lib.makeBinPath [ coreutils bc jdk26 ]}" \
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk2 gtk3 xorg.libXtst xorg.libXxf86vm ]}" \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk2 gtk3 libxtst libxxf86vm ]}" \
       --set LC_ALL en_US.UTF-8 \
       --set LANG en_US.UTF-8 \
       --run "mkdir -p \$HOME/.$pname" \
@@ -80,4 +80,6 @@ stdenv.mkDerivation rec {
     license = licenses.unfree;
     platforms = platforms.linux;
   };
+
+  passthru.updateScript = ./update.sh;
 }
