@@ -1,0 +1,59 @@
+name: Update opencode-plugins & llm-agents
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * 1'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout my-nixpkgs
+        uses: actions/checkout@v4
+        with:
+          repository: pcortellezzi/nixpkgs
+          token: ${{ secrets.PAT }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Update npm packages
+        run: bash pkgs/opencode-plugins/update.sh
+
+      - name: Commit my-nixpkgs changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          cd pkgs/opencode-plugins
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "opencode-plugins: auto-update"
+          else
+            echo "No npm changes to commit"
+          fi
+
+      - name: Push my-nixpkgs
+        run: git push
+
+      - name: Checkout nixos-config
+        uses: actions/checkout@v4
+        with:
+          repository: pcortellezzi/nixos-config
+          token: ${{ secrets.PAT }}
+          path: nixos-config
+
+      - name: Update llm-agents flake input
+        run: |
+          cd nixos-config
+          nix flake lock --update-input llm-agents
+          git add flake.lock
+          if ! git diff --cached --quiet; then
+            git commit -m "flake.lock: update llm-agents (automated)"
+            git push
+          else
+            echo "llm-agents already up to date"
+          fi

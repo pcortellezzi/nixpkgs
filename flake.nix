@@ -33,6 +33,7 @@
               krohnkite = callPackage ./pkgs/krohnkite { };
               tealstreet = callPackage ./pkgs/tealstreet { };
               opencode-voice-models = callPackage ./pkgs/opencode-voice-models { };
+              opencode-plugins = callPackage ./pkgs/opencode-plugins { };
 
             };
         in
@@ -52,12 +53,12 @@
 
       packages.${system} = {
         inherit (pkgs)
-          jdk26 krohnkite motivewave tealstreet opencode-voice-models;
+          jdk26 krohnkite motivewave tealstreet opencode-voice-models opencode-plugins;
 
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = with pkgs; [
-            jdk26 krohnkite motivewave tealstreet opencode-voice-models
+            jdk26 krohnkite motivewave tealstreet opencode-voice-models opencode-plugins
           ];
         };
       };
