@@ -5,7 +5,7 @@ buildNpmPackage rec {
   version = "1.0.0";
   src = ./.;
 
-  npmDepsHash = "sha256-cIoAXfJScbznJIJGV+fWAX32djKiOvni5oiIxe88Kcc=";
+  npmDepsHash = "sha256-SEWJCy+Kzq8FOscrdKRRaFn0jGgGBuVWNJg/fOko21I=";
   makeCacheWritable = true;
   npmFlags = [ "--ignore-scripts" ];
   dontNpmBuild = true;
