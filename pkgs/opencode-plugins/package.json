@@ -4,7 +4,7 @@
   "private": true,
   "description": "Meta-package bundling opencode npm plugins for Nix deployment",
   "dependencies": {
-    "opencode-snippets": "^2.2.2",
+    "opencode-snippets": "^2.2.3",
     "opencode-snip": "^1.6.1",
     "opencode-notify": "^0.3.1",
     "opencode-mem": "^2.14.3",
@@ -15,8 +15,8 @@
     "ocwatch": "^0.6.0",
     "supermemory": "^4.21.1",
     "openskills": "^1.5.0",
-    "@ast-grep/cli": "^0.42.3",
-    "@colbymchenry/codegraph": "^0.9.4",
+    "@ast-grep/cli": "^0.43.0",
+    "@colbymchenry/codegraph": "^0.9.8",
     "superpowers": "git+https://github.com/obra/superpowers.git"
   }
 }
