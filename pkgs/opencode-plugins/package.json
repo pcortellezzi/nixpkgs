@@ -4,7 +4,7 @@
   "private": true,
   "description": "Meta-package bundling opencode npm plugins for Nix deployment",
   "dependencies": {
-    "opencode-snippets": "^2.2.3",
+    "opencode-snippets": "^2.2.4",
     "opencode-snip": "^1.6.1",
     "opencode-notify": "^0.3.1",
     "opencode-mem": "^2.17.1",
