@@ -24,6 +24,9 @@ jobs:
       - name: Update npm packages
         run: bash pkgs/opencode-plugins/update.sh
 
+      - name: Verify package builds
+        run: nix build .#opencode-plugins --no-link
+
       - name: Commit my-nixpkgs changes
         run: |
           git config --global user.name 'github-actions[bot]'

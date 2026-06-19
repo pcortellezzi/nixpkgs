@@ -5,8 +5,8 @@ cd "$(dirname "$0")"
 echo "=== Checking for npm package updates ==="
 npx -y npm-check-updates -u
 
-echo "=== Regenerating lockfile ==="
-npm install --package-lock-only
+echo "=== Regenerating lockfile (full install for complete resolution) ==="
+npm install
 
 echo "=== Setting fake hash to discover real one ==="
 sed -i 's|npmDepsHash = "sha256-.*"|npmDepsHash = lib.fakeHash|' default.nix
