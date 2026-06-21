@@ -35,6 +35,8 @@
               opencode-voice-models = callPackage ./pkgs/opencode-voice-models { };
               opencode-plugins = callPackage ./pkgs/opencode-plugins { };
 
+              gvfs = p.gvfs.override { gnomeSupport = true; };
+
             };
         in
         compose [
