@@ -69,6 +69,7 @@ stdenv.mkDerivation rec {
       --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ gtk2 gtk3 libxtst libxxf86vm ]}" \
       --set LC_ALL en_US.UTF-8 \
       --set LANG en_US.UTF-8 \
+      --set _JAVA_OPTIONS "-Djava.awt.trySystemScale=1 -Djdk.gtk.version=3 -Dawt.toolkit.name=WToolkit" \
       --run "mkdir -p \$HOME/.$pname" \
       ${lib.optionalString (licenseFile != null) ''--run 'sh -c "cat ${licenseFile} > $HOME/.${pname}/mwave_license.txt"' ''}
   '';
