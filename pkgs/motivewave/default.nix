@@ -52,6 +52,11 @@ stdenv.mkDerivation rec {
     sed -i -e "s#^Exec=.*#Exec=$out/bin/$pname#" \
            -e "s#^Icon=.*#Icon=$pname#" "$out/share/applications/$pname.desktop"
     sed -i -e "s#^\(SCRIPTDIR=\).*#\1$out/usr/share/$pname#"  "$out/usr/share/$pname/run.sh"
+    # Remove hardcoded uiScale overrides to allow per-monitor dynamic scaling
+    sed -i \
+      -e '/COMMAND+=("-Dglass\.gtk\.uiScale=/d' \
+      -e '/COMMAND+=("-Dsun\.java2d\.uiScale=/d' \
+      $out/usr/share/$pname/run.sh
     install -Dm644 -t "$out/usr/share/licenses/$pname" "$out/usr/share/$pname/license.html"
 
     install -Dm644 "$out/usr/share/$pname/icons/mwave_256x256.png" \
