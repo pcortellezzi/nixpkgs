@@ -34,13 +34,14 @@
               tealstreet = callPackage ./pkgs/tealstreet { };
               opencode-voice-models = callPackage ./pkgs/opencode-voice-models { };
               opencode-plugins = callPackage ./pkgs/opencode-plugins { };
+              virtual-display-edid = callPackage ./pkgs/virtual-display-edid { };
 
 
             };
         in
         compose [
           (import ./overlays/displaylink.nix)
-          (import ./overlays/kmsvnc.nix)
+          # (import ./overlays/kmsvnc.nix)  # disabled: testing official version first
           customPkgsOverlay
         ] final prev;
 
@@ -55,13 +56,15 @@
 
       packages.${system} = {
         inherit (pkgs)
-          jdk26 krohnkite motivewave tealstreet opencode-voice-models opencode-plugins;
+          jdk26 krohnkite motivewave tealstreet opencode-voice-models
+          opencode-plugins virtual-display-edid;
         kmsvnc = pkgs.kmsvnc;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = with pkgs; [
             jdk26 krohnkite motivewave tealstreet
-            opencode-voice-models opencode-plugins kmsvnc
+            opencode-voice-models opencode-plugins
+            kmsvnc virtual-display-edid
           ];
         };
       };
