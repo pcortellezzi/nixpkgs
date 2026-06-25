@@ -40,6 +40,7 @@
         in
         compose [
           (import ./overlays/displaylink.nix)
+          (import ./overlays/kmsvnc.nix)
           customPkgsOverlay
         ] final prev;
 
@@ -55,11 +56,12 @@
       packages.${system} = {
         inherit (pkgs)
           jdk26 krohnkite motivewave tealstreet opencode-voice-models opencode-plugins;
-
+        kmsvnc = pkgs.kmsvnc;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = with pkgs; [
-            jdk26 krohnkite motivewave tealstreet opencode-voice-models opencode-plugins
+            jdk26 krohnkite motivewave tealstreet
+            opencode-voice-models opencode-plugins kmsvnc
           ];
         };
       };
