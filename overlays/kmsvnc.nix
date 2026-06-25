@@ -3,8 +3,8 @@ final: prev: {
     src = prev.fetchFromGitHub {
       owner = "pcortellezzi";
       repo = "kmsvnc";
-      rev = "f741bcdcecefe3d176700ba55a7efb12dde5e842";
-      hash = "sha256-TIVQcpVdq7a3KfyFJvtbXHb8tN2QK3TyXX51aq7KX9M=";
+      rev = "c08bfc58639f8897355f1a469ce44d661773c4d5";
+      hash = "sha256-oGhY6+MnfQp//PT6J3kniDyZdBthn6LgXKtxfljbx9k=";
     };
     version = "${old.version}-embed-cursor";
   });
