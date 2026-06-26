@@ -41,7 +41,7 @@
         in
         compose [
           (import ./overlays/displaylink.nix)
-          # (import ./overlays/kmsvnc.nix)  # disabled: testing official version first
+          (import ./overlays/kmsvnc.nix)
           customPkgsOverlay
         ] final prev;
 
