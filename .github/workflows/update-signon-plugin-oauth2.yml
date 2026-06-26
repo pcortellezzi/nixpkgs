@@ -1,0 +1,37 @@
+name: Update signon-plugin-oauth2 package
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * 1'
+
+jobs:
+  update-signon-plugin-oauth2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Run update script
+        run: bash pkgs/signon-plugin-oauth2/update.sh
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          if ! git diff --quiet pkgs/signon-plugin-oauth2/default.nix; then
+            REV_CHANGED=$(grep 'rev =' pkgs/signon-plugin-oauth2/default.nix | head -1 | cut -d'"' -f2 | head -c 12)
+            git add pkgs/signon-plugin-oauth2/default.nix
+            git commit -m "signon-plugin-oauth2: auto-update to rev $REV_CHANGED"
+            git push
+          else
+            echo "signon-plugin-oauth2 is already up to date."
+          fi
