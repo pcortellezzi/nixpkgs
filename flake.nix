@@ -35,8 +35,7 @@
               opencode-voice-models = callPackage ./pkgs/opencode-voice-models { };
               opencode-plugins = callPackage ./pkgs/opencode-plugins { };
               virtual-display-edid = callPackage ./pkgs/virtual-display-edid { };
-
-
+              signon-plugin-oauth2 = callPackage ./pkgs/signon-plugin-oauth2 { signond = f.kdePackages.signond; qtbase = f.kdePackages.qtbase; qttools = f.kdePackages.qttools; };
             };
         in
         compose [
@@ -57,14 +56,14 @@
       packages.${system} = {
         inherit (pkgs)
           jdk26 krohnkite motivewave tealstreet opencode-voice-models
-          opencode-plugins virtual-display-edid;
+          opencode-plugins virtual-display-edid signon-plugin-oauth2;
         kmsvnc = pkgs.kmsvnc;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = with pkgs; [
             jdk26 krohnkite motivewave tealstreet
             opencode-voice-models opencode-plugins
-            kmsvnc virtual-display-edid
+            kmsvnc virtual-display-edid signon-plugin-oauth2
           ];
         };
       };
