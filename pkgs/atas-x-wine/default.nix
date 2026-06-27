@@ -1,7 +1,7 @@
-{ lib, stdenv, fetchFromGitHub, python3, writeText, runCommandNoCC
+{ lib, stdenv, fetchFromGitHub, python3, writeText, runCommand
 , makeDesktopItem, pkgsCross, fetchurl, patchelf
 , nss, gnutls, vulkan-loader, libGL, freetype, fontconfig, libpng
-, zlib, bzip2, brotli, expat, wayland, libdecor, libxkbcommon, xorg
+, zlib, bzip2, brotli, expat, wayland, libdecor, libxkbcommon, libx11, libxext
 , pkgsi686Linux, cacert, winetricks
 }:
 
@@ -48,7 +48,7 @@ open(sys.argv[1],"wb").write(d)
     '';
   };
 
-  wine-bin = runCommandNoCC "wine-wrapper" {
+  wine-bin = runCommand "wine-wrapper" {
     nativeBuildInputs = [ patchelf ];
   } ''
     cp -r ${ge-proton} $out
@@ -90,8 +90,8 @@ open(sys.argv[1],"wb").write(d)
 
   runtimeLibs = lib.makeLibraryPath [
     nss gnutls vulkan-loader libGL freetype fontconfig libpng zlib
-    bzip2 brotli expat wayland libdecor libxkbcommon xorg.libX11
-    xorg.libXext pkgsi686Linux.freetype pkgsi686Linux.fontconfig
+    bzip2 brotli expat wayland libdecor libxkbcommon libx11
+    libxext pkgsi686Linux.freetype pkgsi686Linux.fontconfig
     pkgsi686Linux.libpng pkgsi686Linux.zlib pkgsi686Linux.bzip2
     pkgsi686Linux.brotli pkgsi686Linux.expat pkgsi686Linux.wayland
     pkgsi686Linux.libdecor pkgsi686Linux.libxkbcommon
@@ -125,7 +125,7 @@ open(sys.argv[1],"wb").write(d)
     terminal = true;
   };
 in
-runCommandNoCC "atas-x-wine-${version}" {
+runCommand "atas-x-wine-${version}" {
   inherit wine-bin window-hider-hook atas-launcher winetricks
     desktopItemAtas desktopItemAtasUpdater stdenv runtimeLibs wineLibPath cacert;
   meta = with lib; {
