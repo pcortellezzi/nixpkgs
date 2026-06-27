@@ -11,8 +11,8 @@ let
   src = fetchFromGitHub {
     owner = "pcortellezzi";
     repo = "atas-x-wine";
-    rev = "a0c45c197cd583628b1b0729dc6e9affb081dc38";
-    hash = "sha256-0lYSaF+Nq5xfGf6q0DnJJKyXr7jwXNSrLNLTb4xjpAM=";
+    rev = "ec4a582cdbe0d57ec998d12ac3514919104c941a";
+    hash = "sha256-fz2HusNPt3YTZOvc7aNugAJXkIXrWLAv2G+14Upy9Zg=";
   };
 
   ge-proton-src = fetchurl {
@@ -114,6 +114,7 @@ open(sys.argv[1],"wb").write(d)
   desktopItemAtas = makeDesktopItem {
     name = "atas";
     exec = "atas";
+    icon = "atas";
     desktopName = "ATAS X";
     comment = "ATAS X trading platform (Wine/Proton)";
     categories = [ "Finance" ];
@@ -123,6 +124,7 @@ open(sys.argv[1],"wb").write(d)
   desktopItemAtasUpdater = makeDesktopItem {
     name = "atas-updater";
     exec = "atas-updater";
+    icon = "atas";
     desktopName = "ATAS X Updater";
     comment = "Update ATAS X trading platform";
     categories = [ "Finance" ];
@@ -139,7 +141,7 @@ runCommand "atas-x-wine-${version}" {
     mainProgram = "atas";
   };
 } ''
-  mkdir -p $out/bin $out/lib $out/share/applications
+  mkdir -p $out/bin $out/lib $out/share/applications $out/share/icons/hicolor/48x48/apps $out/share/icons/hicolor/128x128/apps
 
   cp ${window-hider-hook}/lib/window_hider_hook.dll $out/lib/
   cp ${atas-launcher}/bin/atas_launcher.exe $out/bin/
@@ -148,6 +150,9 @@ runCommand "atas-x-wine-${version}" {
   cp ${substituteScript "atas-updater" "${src}/atas-updater.sh"}/bin/atas-updater $out/bin/atas-updater
 
   chmod +x $out/bin/atas $out/bin/atas-updater
+
+  cp ${src}/icon.png $out/share/icons/hicolor/48x48/apps/atas.png
+  cp ${src}/icon-128.png $out/share/icons/hicolor/128x128/apps/atas.png
 
   cp ${desktopItemAtas}/share/applications/*.desktop $out/share/applications/
   cp ${desktopItemAtasUpdater}/share/applications/*.desktop $out/share/applications/
