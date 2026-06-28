@@ -1,6 +1,6 @@
 { lib, stdenv, fetchFromGitHub, python3, writeText, runCommand, writeShellScriptBin
 , makeDesktopItem, pkgsCross, fetchurl, patchelf
-, nss, gnutls, vulkan-loader, libGL, freetype, fontconfig, libpng
+, nss, gnutls, vulkan-loader, libGL, freetype, fontconfig, libpng, libpulseaudio, alsa-lib, udev
 , zlib, bzip2, brotli, expat, wayland, libdecor, libxkbcommon, libx11, libxext
 , pkgsi686Linux, cacert, winetricks
 }:
@@ -98,6 +98,7 @@ open(sys.argv[1],"wb").write(d)
     "@pkgsi686Zlib@" "@pkgsi686Bzip2@" "@pkgsi686Brotli@"
     "@pkgsi686Expat@" "@pkgsi686Wayland@" "@pkgsi686Libdecor@"
     "@pkgsi686Libxkbcommon@" "@pkgsi686Libx11@" "@pkgsi686Libxext@"
+    "@libpulse@" "@alsaLib@" "@pkgsi686Libpulse@" "@pkgsi686AlsaLib@" "@udev@" "@pkgsi686Udev@"
     "@cacert@" "@windowHiderHook@" "@atasLauncher@"
   ] [
     "${wine-bin}" "${winetricks}" "${nss.out}" "${gnutls.out}" "${vulkan-loader}"
@@ -108,6 +109,7 @@ open(sys.argv[1],"wb").write(d)
     "${pkgsi686Linux.zlib}" "${pkgsi686Linux.bzip2.out}" "${pkgsi686Linux.brotli.lib}"
     "${pkgsi686Linux.expat}" "${pkgsi686Linux.wayland}" "${pkgsi686Linux.libdecor}"
     "${pkgsi686Linux.libxkbcommon}" "${pkgsi686Linux.libx11}" "${pkgsi686Linux.libxext}"
+    "${libpulseaudio}" "${alsa-lib}" "${pkgsi686Linux.libpulseaudio}" "${pkgsi686Linux.alsa-lib}" "${udev}" "${pkgsi686Linux.udev}"
     "${cacert.unbundled}" "${window-hider-hook}" "${atas-launcher}"
   ] (builtins.readFile file));
 
