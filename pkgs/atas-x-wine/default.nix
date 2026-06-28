@@ -11,7 +11,7 @@ let
   src = fetchFromGitHub {
     owner = "pcortellezzi";
     repo = "atas-x-wine";
-    rev = "6a778b444ce9dbc474cd0a935602c9a84acd1fe6";
+    rev = "6ec4ef7693c746f744234efeb0d6735e913cedaf";
     hash = "sha256-fz2HusNPt3YTZOvc7aNugAJXkIXrWLAv2G+14Upy9Zg=";
   };
 
