@@ -3,9 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/release-26.05";
+    atas-x-wine.url = "github:pcortellezzi/atas-x-wine";
   };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, atas-x-wine }@inputs:
     let
       system = "x86_64-linux";
       
@@ -36,7 +37,7 @@
               opencode-plugins = callPackage ./pkgs/opencode-plugins { };
               virtual-display-edid = callPackage ./pkgs/virtual-display-edid { };
               signon-plugin-oauth2 = callPackage ./pkgs/signon-plugin-oauth2 { signond = f.kdePackages.signond; qtbase = f.kdePackages.qtbase; qttools = f.kdePackages.qttools; };
-              atas-x-wine = callPackage ./pkgs/atas-x-wine { };
+              atas-x-wine = inputs.atas-x-wine.packages.${f.system}.atas-x-wine;
             };
         in
         compose [
