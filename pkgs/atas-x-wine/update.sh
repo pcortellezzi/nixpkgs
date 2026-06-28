@@ -31,7 +31,7 @@ if [ "$LATEST_REV" = "$CURRENT_REV" ]; then
 fi
 
 echo "Fetching new hash for rev $LATEST_REV ..."
-NEW_HASH=$(nix-prefetch-git https://github.com/pcortellezzi/atas-x-wine.git --rev "$LATEST_REV" 2>/dev/null | jq -r '.hash')
+NEW_HASH=$(nix flake prefetch --json "github:pcortellezzi/atas-x-wine/$LATEST_REV" 2>/dev/null | jq -r '.hash')
 
 if [ -z "$NEW_HASH" ] || [ "$NEW_HASH" = "null" ]; then
   echo "Error: could not compute new hash"
