@@ -6,11 +6,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1782649477,
-        "narHash": "sha256-qJgwq9hjW65PF0/yC5A6HoQKGxMJmsfQ3A5hq48oE1E=",
+        "lastModified": 1782655251,
+        "narHash": "sha256-fBlKOPevEFVKfpZKUV5AjvJD4zX8cgS1aAlVw6KR8u4=",
         "owner": "pcortellezzi",
         "repo": "atas-x-wine",
-        "rev": "6ec4ef7693c746f744234efeb0d6735e913cedaf",
+        "rev": "382ed8057af286e11303ad3f37c95473ce9efbc3",
         "type": "github"
       },
       "original": {
