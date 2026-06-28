@@ -18,18 +18,14 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
       - name: Run update script
-        env:
-          REF: ${{ github.event.client_payload.ref }}
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-        run: bash pkgs/atas-x-wine/update.sh
+        run: nix flake update atas-x-wine
       - name: Commit changes
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          if ! git diff --quiet pkgs/atas-x-wine/default.nix; then
-            NEW_REV=$(grep 'rev =' pkgs/atas-x-wine/default.nix | head -1 | cut -d'"' -f2)
-            git add pkgs/atas-x-wine/default.nix
-            git commit -m "atas-x-wine: auto-update to $NEW_REV"
+          if ! git diff --quiet flake.lock; then
+            git add flake.lock
+            git commit -m "atas-x-wine: auto-update flake input"
             git push
           else
             echo "atas-x-wine is already up to date."
