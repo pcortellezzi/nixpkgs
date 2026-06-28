@@ -33,8 +33,7 @@ jobs:
       - name: "Update flake inputs"
         run: |
           cd nixos-config
-          COMMIT=$(git -C "$OLDPWD" rev-parse HEAD)
-          nix flake lock --override-input my-nixpkgs "github:pcortellezzi/nixpkgs/$COMMIT"
+          nix flake lock --override-input my-nixpkgs "github:pcortellezzi/nixpkgs/$GITHUB_SHA"
 
       - name: "Commit and push changes"
         run: |
