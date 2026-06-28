@@ -1,0 +1,36 @@
+name: Update atas-x-wine package
+on:
+  repository_dispatch:
+    types: [update-atas-x-wine]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+      - uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Run update script
+        env:
+          REF: ${{ github.event.client_payload.ref }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+        run: bash pkgs/atas-x-wine/update.sh
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          if ! git diff --quiet pkgs/atas-x-wine/default.nix; then
+            NEW_REV=$(grep 'rev =' pkgs/atas-x-wine/default.nix | head -1 | cut -d'"' -f2)
+            git add pkgs/atas-x-wine/default.nix
+            git commit -m "atas-x-wine: auto-update to $NEW_REV"
+            git push
+          else
+            echo "atas-x-wine is already up to date."
+          fi
