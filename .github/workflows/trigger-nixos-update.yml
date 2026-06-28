@@ -28,10 +28,9 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+            access-tokens = github.com=${{ secrets.PAT }}
 
       - name: "Update flake inputs"
-        env:
-          NIX_CONFIG: "access-tokens = github.com=${{ secrets.PAT }}"
         run: |
           cd nixos-config
           nix flake lock --update-input my-nixpkgs
