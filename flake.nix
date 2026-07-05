@@ -4,9 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/release-26.05";
     atas-x-wine.url = "github:pcortellezzi/atas-x-wine";
+    hermes-agent.url = "github:NousResearch/hermes-agent";
+    hermes-workspace.url = "github:outsourc-e/hermes-workspace";
   };
 
-  outputs = { self, nixpkgs, atas-x-wine }@inputs:
+  outputs = { self, nixpkgs, atas-x-wine, hermes-agent, hermes-workspace }@inputs:
     let
       system = "x86_64-linux";
       
@@ -38,6 +40,8 @@
               virtual-display-edid = callPackage ./pkgs/virtual-display-edid { };
               signon-plugin-oauth2 = callPackage ./pkgs/signon-plugin-oauth2 { signond = f.kdePackages.signond; qtbase = f.kdePackages.qtbase; qttools = f.kdePackages.qttools; };
               atas-x-wine = inputs.atas-x-wine.packages.${f.system}.atas-x-wine;
+              hermes-agent = inputs.hermes-agent.packages.${f.system}.default;
+              hermes-workspace = inputs.hermes-workspace.packages.${f.system}.default;
             };
         in
         compose [
@@ -58,15 +62,16 @@
       packages.${system} = {
         inherit (pkgs)
           jdk26 krohnkite motivewave tealstreet opencode-voice-models
-          opencode-plugins virtual-display-edid signon-plugin-oauth2 atas-x-wine;
+          opencode-plugins virtual-display-edid signon-plugin-oauth2 atas-x-wine hermes-agent hermes-workspace;
         kmsvnc = pkgs.kmsvnc;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = with pkgs; [
             jdk26 krohnkite motivewave tealstreet
             opencode-voice-models opencode-plugins
-            kmsvnc virtual-display-edid signon-plugin-oauth2 atas-x-wine
+            kmsvnc virtual-display-edid signon-plugin-oauth2 atas-x-wine hermes-agent hermes-workspace
           ];
+          ignoreCollisions = true;
         };
       };
     };
