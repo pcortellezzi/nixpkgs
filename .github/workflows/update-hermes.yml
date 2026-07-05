@@ -1,0 +1,39 @@
+name: Update hermes flake inputs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  update-hermes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Update hermes flake inputs
+        run: nix flake lock --update-input hermes-agent --update-input hermes-workspace
+
+      - name: Check flake
+        run: nix flake check
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          if ! git diff --quiet flake.lock; then
+            git add flake.lock
+            git commit -m "chore: update hermes-agent and hermes-workspace"
+            git push
+          else
+            echo "hermes flake inputs are already up to date."
+          fi
