@@ -29,5 +29,8 @@ jobs:
         authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
     - name: Build Nix packages
-      run: nix build .#
+      run: |
+        nix build .#
+        nix build .#hermes-agent --no-link
+        nix build .#hermes-workspace --no-link
         
