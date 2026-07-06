@@ -4,8 +4,8 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/release-26.05";
     atas-x-wine.url = "github:pcortellezzi/atas-x-wine";
-    hermes-agent.url = "github:NousResearch/hermes-agent";
-    hermes-workspace.url = "github:outsourc-e/hermes-workspace";
+    hermes-agent.url = "github:NousResearch/hermes-agent/v2026.7.1";
+    hermes-workspace.url = "github:outsourc-e/hermes-workspace/c1e6ed979dcb8dddf79c5b163150c6c23c4dce0c";
   };
 
   outputs = { self, nixpkgs, atas-x-wine, hermes-agent, hermes-workspace }@inputs:
