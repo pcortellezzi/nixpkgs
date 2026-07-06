@@ -41,7 +41,14 @@
               signon-plugin-oauth2 = callPackage ./pkgs/signon-plugin-oauth2 { signond = f.kdePackages.signond; qtbase = f.kdePackages.qtbase; qttools = f.kdePackages.qttools; };
               atas-x-wine = inputs.atas-x-wine.packages.${f.system}.atas-x-wine;
               hermes-agent = inputs.hermes-agent.packages.${f.system}.default;
-              hermes-workspace = inputs.hermes-workspace.packages.${f.system}.default;
+              hermes-workspace = inputs.hermes-workspace.packages.${f.system}.default.overrideAttrs (old: {
+                pnpmDeps = f.fetchPnpmDeps {
+                  inherit (old) pname version src;
+                  pnpm = f.pnpm;
+                  fetcherVersion = 3;
+                  hash = "sha256-vNFqFVLC9oX4i17xTl3Vh/0FJ27o5lyIpStL3rR2z5s=";
+                };
+              });
             };
         in
         compose [
