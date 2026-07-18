@@ -30,8 +30,9 @@
             let
               callPackage = f.lib.callPackageWith f;
               jdk26 = callPackage ./pkgs/jdk26 { };
+              codex = callPackage ./pkgs/codex { };
             in {
-              inherit jdk26;
+              inherit jdk26 codex;
               motivewave = callPackage ./pkgs/motivewave { pkgsUnstable = f; inherit jdk26; };
               krohnkite = callPackage ./pkgs/krohnkite { };
               tealstreet = callPackage ./pkgs/tealstreet { };
@@ -68,13 +69,13 @@
 
       packages.${system} = {
         inherit (pkgs)
-          jdk26 krohnkite motivewave tealstreet opencode-voice-models
+          jdk26 codex krohnkite motivewave tealstreet opencode-voice-models
           opencode-plugins virtual-display-edid signon-plugin-oauth2 atas-x-wine hermes-agent hermes-workspace;
         kmsvnc = pkgs.kmsvnc;
         default = pkgs.buildEnv {
           name = "all-my-packages";
           paths = with pkgs; [
-            jdk26 krohnkite motivewave tealstreet
+            jdk26 codex krohnkite motivewave tealstreet
             opencode-voice-models opencode-plugins
             kmsvnc virtual-display-edid signon-plugin-oauth2 atas-x-wine hermes-agent hermes-workspace
           ];
