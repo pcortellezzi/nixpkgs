@@ -2,16 +2,16 @@
 
 stdenv.mkDerivation rec {
   pname = "codex";
-  version = "0.144.6";
+  version = "0.145.0";
 
   src = fetchurl {
     url = "https://github.com/openai/codex/releases/download/rust-v${version}/codex-package-x86_64-unknown-linux-musl.tar.gz";
-    sha256 = "07ff0rxw0dl2ra6wi4215w4jqmv6gqpsp66rxhqcb9ixfkj4iblr";
+    sha256 = "1nbxzvlfmw6sgwb47f5d4svswlg43g3s40w2pwlrib4n5hv8v8ki";
   };
 
   codeModeHostSrc = fetchurl {
     url = "https://github.com/openai/codex/releases/download/rust-v${version}/codex-code-mode-host-x86_64-unknown-linux-musl.tar.gz";
-    sha256 = "14s4q1gy4r9vdd3kckbz778vxs780gq6jvnh169p0697yr1lq41p";
+    sha256 = "0bl5j3a489n2vjagnmfvh1kvgdav1zc7phl0y7ww2363arwif8xc";
   };
 
   nativeBuildInputs = [ makeWrapper ];
